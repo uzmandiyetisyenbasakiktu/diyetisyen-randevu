@@ -326,7 +326,7 @@
         <div id="page-patients" class="page">
             <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><h1>Hastalar</h1></div><div class="header-actions"><button class="btn btn-primary btn-sm" onclick="openNewPatientModal()">+ Yeni Hasta</button></div></div>
             <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="patientSearch" placeholder="Hasta adi veya telefon ile ara..." oninput="renderPatients()"></div>
-            <div class="filter-bar"><button class="filter-btn active" onclick="filterPatient('all',this)">Tumu</button><button class="filter-btn" onclick="filterPatient('aktif',this)">Aktif</button><button class="filter-btn" onclick="filterPatient('tamamlandi',this)">Tamamlandi</button><button class="filter-btn" onclick="filterPatient('beklemede',this)">Beklemede</button></div>
+            <div class="filter-bar"><button class="filter-btn active" onclick="filterPatient('all',this)">Tumu</button><button class="filter-btn" onclick="filterPatient('aktif',this)">Aktif</button><button class="filter-btn" onclick="filterPatient('tamamlandi',this)">Tamamlandi</button><button class="filter-btn" onclick="filterPatient('beklemede',this)">Beklemede</button><button class="filter-btn" onclick="filterPatient('bugun',this)" style="border-color:var(--primary)">Bugunun Hastalari</button></div>
             <div id="patientList" class="patient-grid"></div>
         </div>
         <div id="page-settings" class="page">
@@ -427,7 +427,7 @@ window.addEventListener('load',()=>{const ls=document.getElementById('loadingScr
 const firebaseConfig={apiKey:"AIzaSyALeFXLCDDZdtIyEkdalbmKbMofstkwegA",authDomain:"diyetisyen-randevu-a7122.firebaseapp.com",projectId:"diyetisyen-randevu-a7122",storageBucket:"diyetisyen-randevu-a7122.firebasestorage.app",messagingSenderId:"911944619001",appId:"1:911944619001:web:bbd8fe8edfa1c8054c6328"};
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.firestore(),storage=firebase.storage();
-let currentUser=null,appointments=[],patients=[],calendarInstance=null,currentFilter='all',patientFilter='all';
+let currentUser=null,appointments=[],patients=[],allWeights=[],calendarInstance=null,currentFilter='all',patientFilter='all';
 
 auth.onAuthStateChanged(user=>{
     const ls=document.getElementById('loadingScreen');if(ls)ls.style.display='none';
@@ -442,6 +442,7 @@ function logout(){auth.signOut()}
 async function loadData(){
     db.collection('patients').where('userId','==',currentUser.uid).orderBy('name').onSnapshot(s=>{patients=s.docs.map(d=>({id:d.id,...d.data()}));renderPatients();updateStats()});
     db.collection('appointments').where('userId','==',currentUser.uid).orderBy('date').onSnapshot(s=>{appointments=s.docs.map(d=>({id:d.id,...d.data()}));renderDashboard();renderAppointments();renderCalendar();renderPatients();updateStats()});
+    db.collection('weights').where('userId','==',currentUser.uid).onSnapshot(s=>{allWeights=s.docs.map(d=>({id:d.id,...d.data()}));renderCalendar()},()=>{});
     restorePage();renderTypes();
 }
 
@@ -503,10 +504,33 @@ async function deleteAppointment(id){if(!confirm('Bu randevuyu silmek istedigini
 
 function renderPatients(){
     const search=document.getElementById('patientSearch').value.toLowerCase();
+    const el=document.getElementById('patientList');
+    // Bugunun hastalari filtresi
+    if(patientFilter==='bugun'){
+        const today=new Date().toISOString().split('T')[0];
+        const now=new Date().getHours()*60+new Date().getMinutes();
+        const todayApts=appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
+        let filtered=todayApts;
+        if(search)filtered=filtered.filter(a=>{const p=patients.find(x=>x.id===a.patientId);return p&&p.name.toLowerCase().includes(search)});
+        if(!filtered.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><p>Bugun randevu yok</p></div>';return}
+        el.innerHTML=filtered.map(a=>{
+            const p=patients.find(x=>x.id===a.patientId);if(!p)return'';
+            const av=p.photo?`<img src="${p.photo}" alt="${p.name}">`:(p.name.charAt(0).toUpperCase());
+            const [h,m]=a.time.split(':').map(Number);
+            const aptMin=h*60+m;
+            const isPast=aptMin+parseInt(a.duration||60)<=now;
+            const isCurrent=aptMin<=now&&aptMin+parseInt(a.duration||60)>now;
+            const borderColor=isPast?'rgba(78,203,113,0.4)':isCurrent?'rgba(108,99,255,0.6)':'rgba(255,184,77,0.4)';
+            const bgColor=isPast?'rgba(78,203,113,0.06)':isCurrent?'rgba(108,99,255,0.08)':'rgba(255,184,77,0.06)';
+            const label=isPast?'<span style="font-size:10px;color:var(--success);font-weight:600">TAMAMLANDI</span>':isCurrent?'<span style="font-size:10px;color:var(--primary-light);font-weight:600">SIRADA</span>':'<span style="font-size:10px;color:var(--warning);font-weight:600">BEKLIYOR</span>';
+            return`<div class="patient-card" onclick="showPatientDetail('${p.id}')" style="border-color:${borderColor};background:${bgColor}"><div class="patient-header"><div class="patient-avatar">${av}</div><div><div class="patient-name">${p.name}</div><div class="patient-phone">${a.time} - ${getTypeName(a.type)}</div></div><div style="text-align:right"><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span><br>${label}</div></div><div class="patient-stats"><div class="patient-stat">Sure: <strong>${a.duration} dk</strong></div><div class="patient-stat">${p.phone||''}</div></div></div>`;
+        }).join('');
+        return;
+    }
+    // Normal filtre
     let f=patients;
     if(patientFilter!=='all')f=f.filter(p=>(p.status||'aktif')===patientFilter);
     if(search)f=f.filter(p=>p.name.toLowerCase().includes(search)||(p.phone&&p.phone.includes(search)));
-    const el=document.getElementById('patientList');
     if(!f.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><p>Hasta bulunamadi</p></div>';return}
     el.innerHTML=f.map(p=>{
         const ac=appointments.filter(a=>a.patientId===p.id).length;
@@ -856,7 +880,7 @@ async function renderCalendar(){
         const colors={bekliyor:'linear-gradient(135deg,#6C63FF,#a78bfa)',geldi:'linear-gradient(135deg,#4ECB71,#2ecc71)',gelmedi:'linear-gradient(135deg,#FF6B6B,#ee5a24)',iptal:'linear-gradient(135deg,#555,#777)'};
         const bgColors={bekliyor:'#6C63FF',geldi:'#4ECB71',gelmedi:'#FF6B6B',iptal:'#666'};
         return{id:a.id,title:`${p?p.name:'?'} ${a.time}`,start:a.date+'T'+a.time,backgroundColor:bgColors[a.status]||'#6C63FF',borderColor:'transparent',classNames:['evt-'+a.status],
-            extendedProps:{patientName:p?p.name:'?',type:getTypeName(a.type),typeShort:getTypeShort(a.type),duration:a.duration,status:a.status,time:a.time}};
+            extendedProps:{patientName:p?p.name:'?',type:getTypeName(a.type),typeShort:getTypeShort(a.type),duration:a.duration,status:a.status,time:a.time,weight:getLatestWeight(a.patientId)}};
     });
     if(calendarInstance){calendarInstance.removeAllEvents();calendarInstance.addEventSource(evts);return}
     calendarInstance=new FullCalendar.Calendar(calEl,{
@@ -866,7 +890,7 @@ async function renderCalendar(){
         height:'auto',events:evts,
         eventContent:function(arg){
             const ep=arg.event.extendedProps;
-            return{html:`<div class="evt-card"><div class="evt-left"><span class="evt-name">${ep.patientName}</span><span class="evt-time">${ep.time}</span></div><div class="evt-divider"></div><div class="evt-right">${ep.typeShort}</div></div>`};
+            return{html:`<div class="evt-card"><div class="evt-left"><span class="evt-name">${ep.patientName}</span><span class="evt-time">${ep.time}${ep.weight?' &middot; '+ep.weight+'kg':''}</span></div><div class="evt-divider"></div><div class="evt-right">${ep.typeShort}</div></div>`};
         },
         dateClick:function(info){showDayModal(info.dateStr)},
         eventClick:function(info){info.jsEvent.stopPropagation();showAptQuickModal(info.event.id)},
@@ -972,7 +996,9 @@ function removeCustomType(key){
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active')}
 function openModal(id){document.getElementById(id).classList.add('active')}
 function closeModal(id){document.getElementById(id).classList.remove('active')}
+document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('active')){e.target.classList.remove('active')}})
 function showToast(msg,type='success'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000)}
+function getLatestWeight(patientId){const pw=allWeights.filter(w=>w.patientId===patientId).sort((a,b)=>b.date.localeCompare(a.date));return pw.length?pw[0].weight:null}
 function getTypeName(t){const custom=JSON.parse(localStorage.getItem('customTypes')||'{}');return custom[t]||{'ilk-gorusme':'Ilk Gorusme','kontrol':'Kontrol','olcum':'Olcum','online':'Online'}[t]||t}
 function getTypeShort(t){const custom=JSON.parse(localStorage.getItem('customTypes')||'{}');if(custom[t])return custom[t];return{'ilk-gorusme':'Ilk G.','kontrol':'Kontrol','olcum':'Olcum','online':'Online'}[t]||t}
 function getStatusName(s){return{'bekliyor':'Bekliyor','geldi':'Geldi','gelmedi':'Gelmedi','iptal':'Iptal'}[s]||s}
