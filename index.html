@@ -47,14 +47,17 @@
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
         .stat-card{border-radius:18px;padding:22px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.06);transition:transform 0.3s}
         .stat-card:hover{transform:translateY(-4px);cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,0.3)}
-        .stat-card:nth-child(1){background:linear-gradient(135deg,#6C63FF 0%,#a78bfa 100%)}
-        .stat-card:nth-child(2){background:linear-gradient(135deg,#4DABF7 0%,#63e6be 100%)}
-        .stat-card:nth-child(3){background:linear-gradient(135deg,#4ECB71 0%,#a3e635 100%)}
-        .stat-card:nth-child(4){background:linear-gradient(135deg,#FF6B6B 0%,#ffa502 100%)}
-        .stat-card::after{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1)}
-        .stat-card .stat-label{font-size:13px;color:rgba(255,255,255,0.8);margin-bottom:10px;font-weight:500}
-        .stat-card .stat-value{font-size:32px;font-weight:700;color:white}
-        .stat-card .stat-icon{font-size:28px;position:absolute;top:18px;right:18px;opacity:0.6}
+        .stat-card:nth-child(1){background:linear-gradient(135deg,rgba(108,99,255,0.2),rgba(108,99,255,0.08));border-color:rgba(108,99,255,0.2)}
+        .stat-card:nth-child(1) .stat-value{color:#a78bfa}
+        .stat-card:nth-child(2){background:linear-gradient(135deg,rgba(77,171,247,0.2),rgba(77,171,247,0.08));border-color:rgba(77,171,247,0.2)}
+        .stat-card:nth-child(2) .stat-value{color:#7dd3fc}
+        .stat-card:nth-child(3){background:linear-gradient(135deg,rgba(78,203,113,0.2),rgba(78,203,113,0.08));border-color:rgba(78,203,113,0.2)}
+        .stat-card:nth-child(3) .stat-value{color:#86efac}
+        .stat-card:nth-child(4){background:linear-gradient(135deg,rgba(255,107,107,0.2),rgba(255,107,107,0.08));border-color:rgba(255,107,107,0.2)}
+        .stat-card:nth-child(4) .stat-value{color:#fca5a5}
+        .stat-card .stat-label{font-size:13px;color:var(--text-muted);margin-bottom:10px;font-weight:500}
+        .stat-card .stat-value{font-size:32px;font-weight:700}
+        .stat-card .stat-icon{font-size:28px;position:absolute;top:18px;right:18px;opacity:0.4}
         /* CARDS */
         .card{background:var(--bg-card);backdrop-filter:blur(12px);border-radius:18px;padding:24px;border:1px solid var(--border);margin-bottom:20px;transition:all 0.3s}
         .card:hover{border-color:rgba(108,99,255,0.25)}
@@ -83,8 +86,8 @@
         .fc .fc-col-header{background:rgba(108,99,255,0.06);border-radius:12px;overflow:hidden}
         .fc .fc-col-header-cell{padding:12px 0 !important;border:none !important}
         .fc .fc-col-header-cell-cushion{color:var(--primary-light);font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;text-decoration:none !important}
-        .fc .fc-daygrid-day{background:transparent;transition:all 0.2s;border-color:rgba(108,99,255,0.08) !important}
-        .fc .fc-daygrid-day:hover{background:rgba(108,99,255,0.05)}
+        .fc .fc-daygrid-day{background:transparent;border-color:rgba(108,99,255,0.08) !important}
+        .fc .fc-daygrid-day-frame:hover{background:rgba(108,99,255,0.06);border-radius:8px;transition:background 0.2s}
         .fc .fc-daygrid-day-number{color:var(--text-muted);font-size:13px;padding:10px;font-weight:500;text-decoration:none !important}
         .fc .fc-day-today{background:rgba(108,99,255,0.1) !important;border-color:rgba(108,99,255,0.2) !important}
         .fc .fc-day-today .fc-daygrid-day-number{color:var(--primary-light);font-weight:800;background:linear-gradient(135deg,var(--primary),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
@@ -123,6 +126,10 @@
         .patient-avatar img{width:100%;height:100%;object-fit:cover}
         .patient-name{font-size:16px;font-weight:600}
         .patient-phone{font-size:13px;color:var(--text-muted)}
+        .patient-status-badge{padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;margin-left:auto}
+        .pstatus-aktif{background:rgba(78,203,113,0.15);color:var(--success)}
+        .pstatus-tamamlandi{background:rgba(77,171,247,0.15);color:var(--info)}
+        .pstatus-beklemede{background:rgba(255,184,77,0.15);color:var(--warning)}
         .patient-stats{display:flex;gap:16px;margin-top:12px;padding-top:12px;border-top:1px solid var(--border)}
         .patient-stat{font-size:12px;color:var(--text-muted)}
         .patient-stat strong{color:var(--text)}
@@ -227,7 +234,7 @@
             <div class="stats-grid">
                 <div class="stat-card" onclick="goToPage('appointments','today')"><div class="stat-icon">&#128197;</div><div class="stat-label">Bugunun Randevulari</div><div class="stat-value" id="statToday">0</div></div>
                 <div class="stat-card" onclick="goToPage('calendar')"><div class="stat-icon">&#128198;</div><div class="stat-label">Bu Haftaki Randevular</div><div class="stat-value" id="statWeek">0</div></div>
-                <div class="stat-card" onclick="goToPage('patients')"><div class="stat-icon">&#128101;</div><div class="stat-label">Toplam Hasta</div><div class="stat-value" id="statPatients">0</div></div>
+                <div class="stat-card" onclick="goToPage('patients')"><div class="stat-icon">&#128101;</div><div class="stat-label">Aktif Hasta</div><div class="stat-value" id="statPatients">0</div></div>
                 <div class="stat-card" onclick="goToPage('appointments','gelmedi')"><div class="stat-icon">&#10060;</div><div class="stat-label">Gelmeyen (Bu Ay)</div><div class="stat-value" id="statNoShow">0</div></div>
             </div>
             <div class="card"><div class="card-title">Bugunun Randevulari</div><div id="todayAppointments"></div></div>
@@ -246,6 +253,7 @@
         <div id="page-patients" class="page">
             <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><h1>Hastalar</h1></div><div class="header-actions"><button class="btn btn-primary btn-sm" onclick="openNewPatientModal()">+ Yeni Hasta</button></div></div>
             <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="patientSearch" placeholder="Hasta adi veya telefon ile ara..." oninput="renderPatients()"></div>
+            <div class="filter-bar"><button class="filter-btn active" onclick="filterPatient('all',this)">Tumu</button><button class="filter-btn" onclick="filterPatient('aktif',this)">Aktif</button><button class="filter-btn" onclick="filterPatient('tamamlandi',this)">Tamamlandi</button><button class="filter-btn" onclick="filterPatient('beklemede',this)">Beklemede</button></div>
             <div id="patientList" class="patient-grid"></div>
         </div>
     </div>
@@ -271,6 +279,7 @@
     <div class="form-group"><label>Telefon</label><input type="tel" id="patientPhone" placeholder="05xx xxx xx xx"></div>
     <div class="form-group"><label>E-posta</label><input type="email" id="patientEmail" placeholder="ornek@mail.com"></div>
     <div class="form-group"><label>Dogum Tarihi</label><input type="date" id="patientBirthdate"></div>
+    <div class="form-group"><label>Tedavi Durumu</label><select id="patientStatus"><option value="aktif">Aktif (Devam Ediyor)</option><option value="tamamlandi">Tedavi Tamamlandi</option><option value="beklemede">Beklemede</option></select></div>
     <div class="form-group"><label>Notlar</label><textarea id="patientNotes" placeholder="Diyet notu, alerji, ozel durum..."></textarea></div>
     <input type="hidden" id="patientEditId"><input type="hidden" id="patientPhotoData">
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('patientModal')">Iptal</button><button class="btn btn-primary" onclick="savePatient()">Kaydet</button></div>
@@ -287,7 +296,7 @@
 const firebaseConfig={apiKey:"AIzaSyALeFXLCDDZdtIyEkdalbmKbMofstkwegA",authDomain:"diyetisyen-randevu-a7122.firebaseapp.com",projectId:"diyetisyen-randevu-a7122",storageBucket:"diyetisyen-randevu-a7122.firebasestorage.app",messagingSenderId:"911944619001",appId:"1:911944619001:web:bbd8fe8edfa1c8054c6328"};
 firebase.initializeApp(firebaseConfig);
 const auth=firebase.auth(),db=firebase.firestore(),storage=firebase.storage();
-let currentUser=null,appointments=[],patients=[],calendarInstance=null,currentFilter='all';
+let currentUser=null,appointments=[],patients=[],calendarInstance=null,currentFilter='all',patientFilter='all';
 
 auth.onAuthStateChanged(user=>{
     if(user){currentUser=user;document.getElementById('loginPage').style.display='none';document.getElementById('appContainer').style.display='block';loadData()}
@@ -301,6 +310,7 @@ function logout(){auth.signOut()}
 async function loadData(){
     db.collection('patients').where('userId','==',currentUser.uid).orderBy('name').onSnapshot(s=>{patients=s.docs.map(d=>({id:d.id,...d.data()}));renderPatients();updateStats()});
     db.collection('appointments').where('userId','==',currentUser.uid).orderBy('date').onSnapshot(s=>{appointments=s.docs.map(d=>({id:d.id,...d.data()}));renderDashboard();renderAppointments();renderCalendar();updateStats()});
+    restorePage();
 }
 
 function renderDashboard(){
@@ -321,7 +331,7 @@ function updateStats(){
     document.getElementById('statToday').textContent=appointments.filter(a=>a.date===today).length;
     const mon=getMonday(new Date()),sun=new Date(mon);sun.setDate(sun.getDate()+6);
     document.getElementById('statWeek').textContent=appointments.filter(a=>a.date>=mon.toISOString().split('T')[0]&&a.date<=sun.toISOString().split('T')[0]).length;
-    document.getElementById('statPatients').textContent=patients.length;
+    document.getElementById('statPatients').textContent=patients.filter(p=>(p.status||'aktif')==='aktif').length;
     document.getElementById('statNoShow').textContent=appointments.filter(a=>a.date.startsWith(new Date().toISOString().slice(0,7))&&a.status==='gelmedi').length;
 }
 
@@ -361,21 +371,26 @@ async function deleteAppointment(id){if(!confirm('Bu randevuyu silmek istedigini
 
 function renderPatients(){
     const search=document.getElementById('patientSearch').value.toLowerCase();
-    let f=patients;if(search)f=f.filter(p=>p.name.toLowerCase().includes(search)||(p.phone&&p.phone.includes(search)));
+    let f=patients;
+    if(patientFilter!=='all')f=f.filter(p=>(p.status||'aktif')===patientFilter);
+    if(search)f=f.filter(p=>p.name.toLowerCase().includes(search)||(p.phone&&p.phone.includes(search)));
     const el=document.getElementById('patientList');
     if(!f.length){el.innerHTML='<div class="empty-state" style="grid-column:1/-1"><p>Hasta bulunamadi</p></div>';return}
     el.innerHTML=f.map(p=>{
         const ac=appointments.filter(a=>a.patientId===p.id).length;
         const av=p.photo?`<img src="${p.photo}" alt="${p.name}">`:(p.name.charAt(0).toUpperCase());
-        return`<div class="patient-card" onclick="showPatientDetail('${p.id}')"><div class="patient-header"><div class="patient-avatar">${av}</div><div><div class="patient-name">${p.name}</div><div class="patient-phone">${p.phone||'Telefon yok'}</div></div></div><div class="patient-stats"><div class="patient-stat">Randevu: <strong>${ac}</strong></div>${p.email?`<div class="patient-stat">${p.email}</div>`:''}</div></div>`
+        const st=p.status||'aktif';
+        const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;
+        return`<div class="patient-card" onclick="showPatientDetail('${p.id}')"><div class="patient-header"><div class="patient-avatar">${av}</div><div><div class="patient-name">${p.name}</div><div class="patient-phone">${p.phone||'Telefon yok'}</div></div><span class="patient-status-badge pstatus-${st}">${stName}</span></div><div class="patient-stats"><div class="patient-stat">Randevu: <strong>${ac}</strong></div>${p.email?`<div class="patient-stat">${p.email}</div>`:''}</div></div>`
     }).join('');
 }
-function openNewPatientModal(){document.getElementById('patientModalTitle').textContent='Yeni Hasta';document.getElementById('patientEditId').value='';document.getElementById('patientName').value='';document.getElementById('patientPhone').value='';document.getElementById('patientEmail').value='';document.getElementById('patientBirthdate').value='';document.getElementById('patientNotes').value='';document.getElementById('patientPhotoData').value='';document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden');openModal('patientModal')}
-function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;document.getElementById('patientModalTitle').textContent='Hasta Duzenle';document.getElementById('patientEditId').value=id;document.getElementById('patientName').value=p.name;document.getElementById('patientPhone').value=p.phone||'';document.getElementById('patientEmail').value=p.email||'';document.getElementById('patientBirthdate').value=p.birthdate||'';document.getElementById('patientNotes').value=p.notes||'';document.getElementById('patientPhotoData').value=p.photo||'';if(p.photo){document.getElementById('photoPreview').src=p.photo;document.getElementById('photoPreview').classList.remove('hidden');document.getElementById('photoPlaceholder').classList.add('hidden')}else{document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden')}closeModal('patientDetailModal');openModal('patientModal')}
+function filterPatient(f,b){patientFilter=f;document.querySelectorAll('#page-patients .filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderPatients()}
+function openNewPatientModal(){document.getElementById('patientModalTitle').textContent='Yeni Hasta';document.getElementById('patientEditId').value='';document.getElementById('patientName').value='';document.getElementById('patientPhone').value='';document.getElementById('patientEmail').value='';document.getElementById('patientBirthdate').value='';document.getElementById('patientStatus').value='aktif';document.getElementById('patientNotes').value='';document.getElementById('patientPhotoData').value='';document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden');openModal('patientModal')}
+function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;document.getElementById('patientModalTitle').textContent='Hasta Duzenle';document.getElementById('patientEditId').value=id;document.getElementById('patientName').value=p.name;document.getElementById('patientPhone').value=p.phone||'';document.getElementById('patientEmail').value=p.email||'';document.getElementById('patientBirthdate').value=p.birthdate||'';document.getElementById('patientStatus').value=p.status||'aktif';document.getElementById('patientNotes').value=p.notes||'';document.getElementById('patientPhotoData').value=p.photo||'';if(p.photo){document.getElementById('photoPreview').src=p.photo;document.getElementById('photoPreview').classList.remove('hidden');document.getElementById('photoPlaceholder').classList.add('hidden')}else{document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden')}closeModal('patientDetailModal');openModal('patientModal')}
 function handlePhotoSelect(e){const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=function(ev){const img=new Image();img.onload=function(){const c=document.createElement('canvas');const m=200;let w=img.width,h=img.height;if(w>h){h=h*m/w;w=m}else{w=w*m/h;h=m}c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);const d=c.toDataURL('image/jpeg',0.7);document.getElementById('patientPhotoData').value=d;document.getElementById('photoPreview').src=d;document.getElementById('photoPreview').classList.remove('hidden');document.getElementById('photoPlaceholder').classList.add('hidden')};img.src=ev.target.result};r.readAsDataURL(f)}
-async function savePatient(){const name=document.getElementById('patientName').value.trim();if(!name){showToast('Hasta adi zorunlu!','error');return}const data={userId:currentUser.uid,name,phone:document.getElementById('patientPhone').value.trim(),email:document.getElementById('patientEmail').value.trim(),birthdate:document.getElementById('patientBirthdate').value,notes:document.getElementById('patientNotes').value.trim(),photo:document.getElementById('patientPhotoData').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};const eid=document.getElementById('patientEditId').value;try{if(eid){await db.collection('patients').doc(eid).update(data);showToast('Hasta guncellendi!','success')}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('patients').add(data);showToast('Hasta eklendi!','success')}closeModal('patientModal')}catch(e){showToast('Hata: '+e.message,'error')}}
+async function savePatient(){const name=document.getElementById('patientName').value.trim();if(!name){showToast('Hasta adi zorunlu!','error');return}const data={userId:currentUser.uid,name,phone:document.getElementById('patientPhone').value.trim(),email:document.getElementById('patientEmail').value.trim(),birthdate:document.getElementById('patientBirthdate').value,status:document.getElementById('patientStatus').value,notes:document.getElementById('patientNotes').value.trim(),photo:document.getElementById('patientPhotoData').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};const eid=document.getElementById('patientEditId').value;try{if(eid){await db.collection('patients').doc(eid).update(data);showToast('Hasta guncellendi!','success')}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('patients').add(data);showToast('Hasta eklendi!','success')}closeModal('patientModal')}catch(e){showToast('Hata: '+e.message,'error')}}
 async function deletePatient(id){if(!confirm('Bu hastayi silmek istediginize emin misiniz?'))return;try{const s=await db.collection('appointments').where('patientId','==',id).get();const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));b.delete(db.collection('patients').doc(id));await b.commit();closeModal('patientDetailModal');showToast('Hasta silindi.','success')}catch(e){showToast('Hata: '+e.message,'error')}}
-function showPatientDetail(id){const p=patients.find(x=>x.id===id);if(!p)return;const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));document.getElementById('patientDetailContent').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><p style="color:var(--text-muted);font-size:13px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>${p.notes?`<div class="card"><div class="card-title">Notlar</div><p style="font-size:14px;color:var(--text-muted)">${p.notes}</p></div>`:''}<div class="card"><div class="card-title">Randevu Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div><div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-primary btn-sm" onclick="editPatient('${id}')">Duzenle</button></div>`;openModal('patientDetailModal')}
+function showPatientDetail(id){const p=patients.find(x=>x.id===id);if(!p)return;const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;document.getElementById('patientDetailContent').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><span class="patient-status-badge pstatus-${st}" style="margin-top:8px">${stName}</span><p style="color:var(--text-muted);font-size:13px;margin-top:8px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>${p.notes?`<div class="card"><div class="card-title">Notlar</div><p style="font-size:14px;color:var(--text-muted)">${p.notes}</p></div>`:''}<div class="card"><div class="card-title">Randevu Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div><div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-primary btn-sm" onclick="editPatient('${id}')">Duzenle</button></div>`;openModal('patientDetailModal')}
 
 // Patient search dropdown
 function filterPatientDropdown(){const s=document.getElementById('aptPatientSearch').value.toLowerCase();const d=document.getElementById('patientDropdown');const f=patients.filter(p=>p.name.toLowerCase().includes(s));d.innerHTML=f.map(p=>`<div class="dropdown-item" onclick="selectPatient('${p.id}','${p.name.replace(/'/g,"\\'")}')">${p.name}</div>`).join('');f.length?d.classList.add('show'):d.classList.remove('show')}
@@ -444,8 +459,12 @@ function goToPage(page,filter){
     if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('overlay').classList.remove('active');
+    localStorage.setItem('currentPage',page);
 }
-function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));event.currentTarget.classList.add('active');if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('active')}
+function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));event.currentTarget.classList.add('active');if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('active');localStorage.setItem('currentPage',page)}
+
+// Sayfa yenilendiginde ayni sayfada kal
+function restorePage(){const saved=localStorage.getItem('currentPage');if(saved&&document.getElementById('page-'+saved)){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+saved).classList.add('active');document.querySelectorAll('.nav-menu li').forEach((li,i)=>{li.classList.remove('active');const pages=['dashboard','calendar','appointments','patients'];if(pages[i]===saved)li.classList.add('active')});if(saved==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),200)}}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active')}
 function openModal(id){document.getElementById(id).classList.add('active')}
 function closeModal(id){document.getElementById(id).classList.remove('active')}
