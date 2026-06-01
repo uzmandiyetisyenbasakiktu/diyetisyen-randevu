@@ -239,7 +239,7 @@
         .weight-bar{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--primary),#a78bfa);min-width:20px;max-width:50px;transition:all 0.3s;position:relative;cursor:pointer}
         .weight-bar:hover{filter:brightness(1.2)}
         .weight-bar-label{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--text);white-space:nowrap}
-        .weight-bar-date{text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px}
+        .weight-bar-date{text-align:center;font-size:10px;color:var(--text-muted);margin-top:4px;white-space:nowrap}
         .weight-chart-labels{display:flex;justify-content:space-between;margin-top:4px}
         /* Weight record */
         .weight-record{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg-input);border-radius:12px;margin-bottom:8px;transition:all 0.2s}
@@ -638,8 +638,9 @@ function switchDetailTab(tab,btn){
 }
 
 // WEIGHT TRACKING
-let weightRecords=[];
+let weightRecords=[];let chartPage;
 function loadWeightRecords(patientId){
+    chartPage=undefined;
     db.collection('weights').where('patientId','==',patientId)
         .onSnapshot(s=>{
             weightRecords=s.docs.map(d=>({id:d.id,...d.data()}));
@@ -668,14 +669,19 @@ function renderKiloTab(patientId){
             <div class="weight-summary-item"><div class="ws-label">Guncel</div><div class="ws-value" style="color:var(--primary-light)">${last.weight} kg</div></div>
             <div class="weight-summary-item"><div class="ws-label">Degisim</div><div class="ws-value" style="color:${parseFloat(diff)<=0?'var(--success)':'var(--danger)'}">${parseFloat(diff)>0?'+':''}${diff} kg</div></div>
         </div>`;
-        // Chart
+        // Chart with pagination
         if(sorted.length>=2){
             const range=maxW-minW||1;
-            html+=`<div class="card" style="padding:16px"><div class="card-title" style="font-size:13px">Kilo Grafigi</div><div class="weight-chart-bar">`;
-            const showMax=12;const chartData=sorted.slice(-showMax);
-            chartData.forEach(r=>{
+            const pageSize=10;
+            const totalPages=Math.ceil(sorted.length/pageSize);
+            html+=`<div class="card" style="padding:16px"><div class="card-title" style="font-size:13px">Kilo Grafigi${totalPages>1?` <div style="display:flex;gap:6px;align-items:center"><button class="btn btn-outline btn-sm" style="padding:4px 10px;font-size:11px" onclick="chartPage=Math.max(0,chartPage-1);renderKiloTab('${patientId}')">&#9664;</button><span style="font-size:11px;color:var(--text-muted)">${'Sayfa '+(typeof chartPage!=='undefined'?chartPage+1:1)+'/'+totalPages}</span><button class="btn btn-outline btn-sm" style="padding:4px 10px;font-size:11px" onclick="chartPage=Math.min(${totalPages-1},chartPage+1);renderKiloTab('${patientId}')">&#9654;</button></div>`:''}</div><div class="weight-chart-bar">`;
+            if(typeof chartPage==='undefined')chartPage=totalPages-1;
+            const pageStart=chartPage*pageSize;
+            const chartData=sorted.slice(pageStart,pageStart+pageSize);
+            chartData.forEach((r,i)=>{
                 const pct=Math.max(15,((parseFloat(r.weight)-minW+0.5)/(range+1))*100);
-                html+=`<div style="flex:1;text-align:center"><div style="height:100px;display:flex;align-items:flex-end"><div class="weight-bar" style="height:${pct}%;width:100%"><span class="weight-bar-label">${r.weight}</span></div></div><div class="weight-bar-date">${r.date.slice(5)}</div></div>`;
+                const dateStr=formatDate(r.date).slice(0,5);
+                html+=`<div style="flex:1;text-align:center;min-width:0"><div style="height:110px;display:flex;align-items:flex-end;justify-content:center"><div class="weight-bar" style="height:${pct}%;width:100%"><span class="weight-bar-label">${r.weight}</span></div></div><div class="weight-bar-date" style="font-size:10px;margin-top:6px;line-height:1.2">${dateStr}</div></div>`;
             });
             html+=`</div></div>`;
         }
@@ -690,8 +696,9 @@ function renderKiloTab(patientId){
                 else if(parseFloat(ch)<0)changeHtml=`<div class="weight-record-change wr-down">${ch}</div>`;
                 else changeHtml=`<div class="weight-record-change wr-same">0</div>`;
             }
-            html+=`<div class="weight-record">
-                <div class="weight-record-date"><div class="wr-date">${formatDate(r.date)}</div><div class="wr-day">${getDayName(r.date)}</div></div>
+            const isLast=i===records.length-1;
+            html+=`<div class="weight-record" style="${isLast?'border:1px solid rgba(255,184,77,0.3);background:rgba(255,184,77,0.05)':''}">
+                <div class="weight-record-date"><div class="wr-date">${formatDate(r.date)}</div><div class="wr-day">${getDayName(r.date)}</div>${isLast?'<div style="font-size:9px;color:var(--warning);font-weight:700;margin-top:2px">BASLANGIC</div>':''}</div>
                 <div class="weight-record-value">${r.weight}<span> kg</span></div>
                 ${changeHtml}
                 <div class="weight-record-notes">${r.notes||''}</div>
