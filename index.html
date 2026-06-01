@@ -420,7 +420,7 @@ function renderAppointments(){
     f.sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
     const tbody=document.getElementById('appointmentTableBody');
     if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="text-center" style="color:var(--text-muted)">Randevu bulunamadi</td></tr>';return}
-    tbody.innerHTML=f.map(a=>{const p=patients.find(p=>p.id===a.patientId);return`<tr><td>${formatDate(a.date)}</td><td><strong>${a.time}</strong></td><td>${p?p.name:'?'}</td><td>${getTypeName(a.type)}</td><td><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></td><td><button class="btn btn-outline btn-sm" onclick="editAppointment('${a.id}')" style="margin-right:4px">Duzenle</button><button class="btn btn-danger btn-sm" onclick="deleteAppointment('${a.id}')">Sil</button></td></tr>`}).join('');
+    tbody.innerHTML=f.map(a=>{const p=patients.find(p=>p.id===a.patientId);return`<tr><td>${formatDate(a.date)}</td><td><strong>${a.time}</strong></td><td>${p?p.name:'?'}</td><td>${getTypeName(a.type)}</td><td><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></td><td><button class="btn btn-primary btn-sm" onclick="editAppointment('${a.id}')" style="margin-right:4px">Duzenle</button><button class="btn btn-danger btn-sm" onclick="deleteAppointment('${a.id}')">Sil</button></td></tr>`}).join('');
 }
 function filterApt(f,b){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderAppointments()}
 
@@ -624,7 +624,7 @@ function showAptQuickModal(id){
         ${a.notes?`<div style="background:var(--bg-input);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-muted)">${a.notes}</div>`:''}
         <div style="display:flex;gap:8px">
             <button class="btn btn-danger btn-sm" style="flex:1" onclick="closeModal('aptQuickModal');deleteAppointment('${a.id}')">Sil</button>
-            <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('aptQuickModal');editAppointment('${a.id}')">Duzenle</button>
+            <button class="btn btn-primary btn-sm" style="flex:1" onclick="closeModal('aptQuickModal');editAppointment('${a.id}')">Duzenle</button>
             <button class="btn btn-success btn-sm" style="flex:1.5" onclick="saveQuickStatus()">Kaydet</button>
         </div>`;
     openModal('aptQuickModal');
