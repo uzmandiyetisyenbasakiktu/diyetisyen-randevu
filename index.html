@@ -640,12 +640,13 @@ function switchDetailTab(tab,btn){
 // WEIGHT TRACKING
 let weightRecords=[];
 function loadWeightRecords(patientId){
-    db.collection('weights').where('patientId','==',patientId).orderBy('date','desc')
+    db.collection('weights').where('patientId','==',patientId)
         .onSnapshot(s=>{
             weightRecords=s.docs.map(d=>({id:d.id,...d.data()}));
+            weightRecords.sort((a,b)=>b.date.localeCompare(a.date));
             renderKiloTab(patientId);
         },err=>{
-            // Index might not exist yet
+            console.log('Weight error:',err);
             weightRecords=[];
             renderKiloTab(patientId);
         });
