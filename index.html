@@ -264,7 +264,8 @@
         .crop-circle:active{cursor:grabbing}
         .crop-circle img{position:absolute;user-select:none;-webkit-user-drag:none;min-width:100%;min-height:100%}
         /* Grouped appointment list */
-        .apt-day-group{margin-bottom:16px}
+        .apt-day-group{margin-bottom:8px;padding-bottom:16px;border-bottom:1px solid rgba(108,99,255,0.15)}
+        .apt-day-group:last-child{border-bottom:none}
         .apt-day-header{display:inline-flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 16px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));border-radius:12px;border-left:3px solid var(--primary)}
         .apt-day-header .adh-date{font-size:15px;font-weight:700;color:var(--text);flex:1}
         .apt-day-header .adh-count{font-size:12px;color:var(--primary-light);font-weight:600;background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:10px}
@@ -510,10 +511,13 @@ function renderAppointments(){
     // Sort by date desc then time asc
     f.sort((a,b)=>aptDateFilter==='past'?b.date.localeCompare(a.date)||a.time.localeCompare(b.time):a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
 
-    // Render date filter buttons
+    // Render date filter buttons with counts
     const dc=document.getElementById('aptDateFilters');
+    const mon=getMonday(new Date()),sun=new Date(mon);sun.setDate(sun.getDate()+6);
+    const monS=mon.toISOString().split('T')[0],sunS=sun.toISOString().split('T')[0],monthS=today.slice(0,7);
+    const dateCounts={today:appointments.filter(a=>a.date===today).length,thisWeek:appointments.filter(a=>a.date>=monS&&a.date<=sunS).length,thisMonth:appointments.filter(a=>a.date.startsWith(monthS)).length,upcoming:appointments.filter(a=>a.date>=today).length,past:appointments.filter(a=>a.date<today).length,all:appointments.length};
     const dateBtns=[['today','Bugun'],['thisWeek','Bu Hafta'],['thisMonth','Bu Ay'],['upcoming','Gelecek'],['past','Gecmis'],['all','Tumu']];
-    dc.innerHTML=dateBtns.map(([k,v])=>`<button class="filter-btn ${aptDateFilter===k?'active':''}" onclick="aptDateFilter='${k}';aptPage=0;renderAppointments()">${v}</button>`).join('');
+    dc.innerHTML=dateBtns.map(([k,v])=>`<button class="filter-btn ${aptDateFilter===k?'active':''}" onclick="aptDateFilter='${k}';aptPage=0;renderAppointments()">${v} (${dateCounts[k]})</button>`).join('');
 
     // Render status filter buttons
     const sc=document.getElementById('aptStatusFilters');
