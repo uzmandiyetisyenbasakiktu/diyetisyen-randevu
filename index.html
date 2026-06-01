@@ -182,6 +182,9 @@
             .stat-card .stat-value{font-size:24px}
             .stat-card .stat-icon{font-size:22px}
             .patient-grid{grid-template-columns:1fr}
+            .apt-day-group{padding:12px;border-radius:12px}
+            .apt-list-item{padding:10px 12px;gap:10px}
+            .apt-list-time{font-size:13px;min-width:45px}
             .modal{padding:24px;margin:10px;border-radius:16px}
             .header h1{font-size:20px}
             .fc .fc-toolbar{flex-direction:column;align-items:stretch}
@@ -264,8 +267,7 @@
         .crop-circle:active{cursor:grabbing}
         .crop-circle img{position:absolute;user-select:none;-webkit-user-drag:none;min-width:100%;min-height:100%}
         /* Grouped appointment list */
-        .apt-day-group{margin-bottom:8px;padding-bottom:16px;border-bottom:1px solid rgba(108,99,255,0.15)}
-        .apt-day-group:last-child{border-bottom:none}
+        .apt-day-group{margin-bottom:16px;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px}
         .apt-day-header{display:inline-flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 16px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));border-radius:12px;border-left:3px solid var(--primary)}
         .apt-day-header .adh-date{font-size:15px;font-weight:700;color:var(--text);flex:1}
         .apt-day-header .adh-count{font-size:12px;color:var(--primary-light);font-weight:600;background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:10px}
@@ -502,13 +504,16 @@ function renderAppointments(){
     else if(aptDateFilter==='upcoming')f=f.filter(a=>a.date>=today);
     else if(aptDateFilter==='past')f=f.filter(a=>a.date<today);
 
+    // Save date-filtered list for status counts
+    const dateFiltered=f.slice();
+
     // Status filter
     if(currentFilter!=='all')f=f.filter(a=>a.status===currentFilter);
 
     // Search
     if(search)f=f.filter(a=>{const p=patients.find(p=>p.id===a.patientId);return p&&p.name.toLowerCase().includes(search)});
 
-    // Sort by date desc then time asc
+    // Sort
     f.sort((a,b)=>aptDateFilter==='past'?b.date.localeCompare(a.date)||a.time.localeCompare(b.time):a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
 
     // Render date filter buttons with counts
@@ -519,10 +524,10 @@ function renderAppointments(){
     const dateBtns=[['today','Bugun'],['thisWeek','Bu Hafta'],['thisMonth','Bu Ay'],['upcoming','Gelecek'],['past','Gecmis'],['all','Tumu']];
     dc.innerHTML=dateBtns.map(([k,v])=>`<button class="filter-btn ${aptDateFilter===k?'active':''}" onclick="aptDateFilter='${k}';aptPage=0;renderAppointments()">${v} (${dateCounts[k]})</button>`).join('');
 
-    // Render status filter buttons
+    // Render status filter buttons - use dateFiltered (before status filter)
     const sc=document.getElementById('aptStatusFilters');
     const statusBtns=[['all','Tumu'],['bekliyor','Bekliyor'],['geldi','Geldi'],['gelmedi','Gelmedi'],['iptal','Iptal']];
-    sc.innerHTML=statusBtns.map(([k,v])=>{const cnt=k==='all'?f.length:f.filter(a=>a.status===k).length;return`<button class="filter-btn ${currentFilter===k?'active':''}" onclick="currentFilter='${k}';aptPage=0;renderAppointments()">${v} (${cnt})</button>`}).join('');
+    sc.innerHTML=statusBtns.map(([k,v])=>{const cnt=k==='all'?dateFiltered.length:dateFiltered.filter(a=>a.status===k).length;return`<button class="filter-btn ${currentFilter===k?'active':''}" onclick="currentFilter='${k}';aptPage=0;renderAppointments()">${v} (${cnt})</button>`}).join('');
 
     // Re-filter after status count (status was already applied to f)
     // Result info
