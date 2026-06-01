@@ -223,6 +223,39 @@
         .dropdown-item .dd-name{font-weight:600;font-size:13px}
         .dropdown-item .dd-phone{font-size:11px;color:var(--text-muted)}
         .dropdown-empty{padding:16px;text-align:center;color:var(--text-muted);font-size:13px}
+        /* Detail tabs */
+        .detail-tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--bg-input);border-radius:12px;padding:4px}
+        .detail-tab{flex:1;padding:10px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;transition:all 0.2s}
+        .detail-tab.active{background:linear-gradient(135deg,var(--primary),#a78bfa);color:white}
+        .detail-tab:hover:not(.active){color:var(--text)}
+        .detail-tab-content{display:none}
+        .detail-tab-content.active{display:block}
+        /* Weight chart */
+        .weight-chart{width:100%;height:160px;position:relative;margin:16px 0}
+        .weight-chart-bar{display:flex;align-items:flex-end;gap:6px;height:120px;padding:0 4px}
+        .weight-bar{flex:1;border-radius:6px 6px 0 0;background:linear-gradient(180deg,var(--primary),#a78bfa);min-width:20px;max-width:50px;transition:all 0.3s;position:relative;cursor:pointer}
+        .weight-bar:hover{filter:brightness(1.2)}
+        .weight-bar-label{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;color:var(--text);white-space:nowrap}
+        .weight-bar-date{text-align:center;font-size:9px;color:var(--text-muted);margin-top:4px}
+        .weight-chart-labels{display:flex;justify-content:space-between;margin-top:4px}
+        /* Weight record */
+        .weight-record{display:flex;align-items:center;gap:14px;padding:14px;background:var(--bg-input);border-radius:12px;margin-bottom:8px;transition:all 0.2s}
+        .weight-record:hover{background:rgba(108,99,255,0.06)}
+        .weight-record-date{min-width:80px}
+        .weight-record-date .wr-date{font-size:13px;font-weight:600}
+        .weight-record-date .wr-day{font-size:11px;color:var(--text-muted)}
+        .weight-record-value{font-size:22px;font-weight:700;color:var(--primary-light);min-width:70px;text-align:center}
+        .weight-record-value span{font-size:12px;font-weight:500;color:var(--text-muted)}
+        .weight-record-change{min-width:60px;text-align:center;font-size:12px;font-weight:600;padding:4px 8px;border-radius:8px}
+        .weight-record-notes{flex:1;font-size:12px;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .weight-record-actions{display:flex;gap:4px}
+        .wr-up{background:rgba(255,107,107,0.15);color:var(--danger)}
+        .wr-down{background:rgba(78,203,113,0.15);color:var(--success)}
+        .wr-same{background:rgba(136,136,170,0.15);color:var(--text-muted)}
+        .weight-summary{display:flex;gap:12px;margin-bottom:16px}
+        .weight-summary-item{flex:1;background:var(--bg-input);border-radius:12px;padding:12px;text-align:center}
+        .weight-summary-item .ws-label{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+        .weight-summary-item .ws-value{font-size:18px;font-weight:700}
         .crop-container{display:flex;justify-content:center;align-items:center}
         .crop-circle{width:200px;height:200px;border-radius:50%;overflow:hidden;position:relative;border:3px solid var(--primary);cursor:grab;background:var(--bg-input);touch-action:none}
         .crop-circle:active{cursor:grabbing}
@@ -329,7 +362,26 @@
     <input type="hidden" id="patientEditId"><input type="hidden" id="patientPhotoData">
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('patientModal')">Iptal</button><button class="btn btn-primary" onclick="savePatient()">Kaydet</button></div>
 </div></div>
-<div class="modal-overlay" id="patientDetailModal"><div class="modal"><div class="modal-title"><span>Hasta Detay</span><button class="modal-close" onclick="closeModal('patientDetailModal')">&times;</button></div><div id="patientDetailContent"></div></div></div>
+<div class="modal-overlay" id="patientDetailModal"><div class="modal" style="max-width:600px">
+    <div class="modal-title"><span>Hasta Detay</span><button class="modal-close" onclick="closeModal('patientDetailModal')">&times;</button></div>
+    <div id="patientDetailHeader"></div>
+    <div class="detail-tabs">
+        <button class="detail-tab active" onclick="switchDetailTab('genel',this)">Genel</button>
+        <button class="detail-tab" onclick="switchDetailTab('kilo',this)">Kilo Takibi</button>
+    </div>
+    <div id="detailTabGenel" class="detail-tab-content active"></div>
+    <div id="detailTabKilo" class="detail-tab-content"></div>
+    <div id="patientDetailActions"></div>
+</div></div>
+<div class="modal-overlay" id="weightModal"><div class="modal" style="max-width:380px">
+    <div class="modal-title"><span>Kilo Kaydi Ekle</span><button class="modal-close" onclick="closeModal('weightModal')">&times;</button></div>
+    <div class="form-group"><label>Tarih *</label><input type="date" id="weightDate"></div>
+    <div class="form-group"><label>Kilo (kg) *</label><input type="number" id="weightValue" step="0.1" min="20" max="300" placeholder="75.5"></div>
+    <div class="form-group"><label>Notlar</label><textarea id="weightNotes" placeholder="Bu haftaki degisimler, diyet uyumu..."></textarea></div>
+    <input type="hidden" id="weightPatientId">
+    <input type="hidden" id="weightEditId">
+    <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('weightModal')">Iptal</button><button class="btn btn-success" onclick="saveWeight()">Kaydet</button></div>
+</div></div>
 <div class="modal-overlay" id="aptQuickModal"><div class="modal" style="max-width:400px">
     <div class="modal-title"><span>Randevu Detay</span><button class="modal-close" onclick="closeModal('aptQuickModal')">&times;</button></div>
     <div id="aptQuickContent"></div>
@@ -549,7 +601,140 @@ function applyCrop(){
 }
 async function savePatient(){const name=document.getElementById('patientName').value.trim();if(!name){showToast('Hasta adi zorunlu!','error');return}const data={userId:currentUser.uid,name,phone:document.getElementById('patientPhone').value.trim(),email:document.getElementById('patientEmail').value.trim(),birthdate:document.getElementById('patientBirthdate').value,status:document.getElementById('patientStatus').value,notes:document.getElementById('patientNotes').value.trim(),photo:document.getElementById('patientPhotoData').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};const eid=document.getElementById('patientEditId').value;try{if(eid){await db.collection('patients').doc(eid).update(data);showToast('Hasta guncellendi!','success')}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('patients').add(data);showToast('Hasta eklendi!','success')}closeModal('patientModal')}catch(e){showToast('Hata: '+e.message,'error')}}
 async function deletePatient(id){if(!confirm('Bu hastayi silmek istediginize emin misiniz?'))return;try{const s=await db.collection('appointments').where('patientId','==',id).get();const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));b.delete(db.collection('patients').doc(id));await b.commit();closeModal('patientDetailModal');showToast('Hasta silindi.','success')}catch(e){showToast('Hata: '+e.message,'error')}}
-function showPatientDetail(id){const p=patients.find(x=>x.id===id);if(!p)return;const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;document.getElementById('patientDetailContent').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><span class="patient-status-badge pstatus-${st}" style="margin-top:8px">${stName}</span><p style="color:var(--text-muted);font-size:13px;margin-top:8px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>${p.notes?`<div class="card"><div class="card-title">Notlar</div><p style="font-size:14px;color:var(--text-muted)">${p.notes}</p></div>`:''}<div class="card"><div class="card-title">Randevu Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div><div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-primary btn-sm" onclick="editPatient('${id}')">Duzenle</button></div>`;openModal('patientDetailModal')}
+let currentDetailPatientId=null;
+function showPatientDetail(id){
+    currentDetailPatientId=id;
+    const p=patients.find(x=>x.id===id);if(!p)return;
+    const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;
+    // Header
+    document.getElementById('patientDetailHeader').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><span class="patient-status-badge pstatus-${st}" style="margin-top:8px">${stName}</span><p style="color:var(--text-muted);font-size:13px;margin-top:8px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>`;
+    // Actions
+    document.getElementById('patientDetailActions').innerHTML=`<div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-sm" style="background:linear-gradient(135deg,var(--primary),#a78bfa);color:white" onclick="editPatient('${id}')">Duzenle</button></div>`;
+    // Genel tab
+    renderGenelTab(id);
+    // Kilo tab
+    loadWeightRecords(id);
+    // Reset tabs
+    document.querySelectorAll('.detail-tab').forEach((t,i)=>{t.classList.toggle('active',i===0)});
+    document.getElementById('detailTabGenel').classList.add('active');
+    document.getElementById('detailTabKilo').classList.remove('active');
+    openModal('patientDetailModal');
+}
+function renderGenelTab(id){
+    const p=patients.find(x=>x.id===id);if(!p)return;
+    const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));
+    document.getElementById('detailTabGenel').innerHTML=`
+        ${p.notes?`<div class="card"><div class="card-title">Notlar</div><p style="font-size:14px;color:var(--text-muted)">${p.notes}</p></div>`:''}
+        <div class="card"><div class="card-title">Randevu Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div>`;
+}
+function switchDetailTab(tab,btn){
+    document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
+    btn.classList.add('active');
+    document.getElementById('detailTabGenel').classList.toggle('active',tab==='genel');
+    document.getElementById('detailTabKilo').classList.toggle('active',tab==='kilo');
+}
+
+// WEIGHT TRACKING
+let weightRecords=[];
+function loadWeightRecords(patientId){
+    db.collection('weights').where('patientId','==',patientId).orderBy('date','desc')
+        .onSnapshot(s=>{
+            weightRecords=s.docs.map(d=>({id:d.id,...d.data()}));
+            renderKiloTab(patientId);
+        },err=>{
+            // Index might not exist yet
+            weightRecords=[];
+            renderKiloTab(patientId);
+        });
+}
+function renderKiloTab(patientId){
+    const records=weightRecords;
+    const sorted=[...records].sort((a,b)=>a.date.localeCompare(b.date));
+    let html=`<div style="margin-bottom:16px"><button class="btn btn-success btn-sm" onclick="openWeightModal('${patientId}')">+ Kilo Kaydi Ekle</button></div>`;
+    if(!records.length){
+        html+=`<div class="empty-state"><p>Henuz kilo kaydi yok</p></div>`;
+    }else{
+        // Summary
+        const first=sorted[0];const last=sorted[sorted.length-1];
+        const diff=(parseFloat(last.weight)-parseFloat(first.weight)).toFixed(1);
+        const minW=Math.min(...sorted.map(r=>parseFloat(r.weight)));
+        const maxW=Math.max(...sorted.map(r=>parseFloat(r.weight)));
+        html+=`<div class="weight-summary">
+            <div class="weight-summary-item"><div class="ws-label">Baslangic</div><div class="ws-value">${first.weight} kg</div></div>
+            <div class="weight-summary-item"><div class="ws-label">Guncel</div><div class="ws-value" style="color:var(--primary-light)">${last.weight} kg</div></div>
+            <div class="weight-summary-item"><div class="ws-label">Degisim</div><div class="ws-value" style="color:${parseFloat(diff)<=0?'var(--success)':'var(--danger)'}">${parseFloat(diff)>0?'+':''}${diff} kg</div></div>
+        </div>`;
+        // Chart
+        if(sorted.length>=2){
+            const range=maxW-minW||1;
+            html+=`<div class="card" style="padding:16px"><div class="card-title" style="font-size:13px">Kilo Grafigi</div><div class="weight-chart-bar">`;
+            const showMax=12;const chartData=sorted.slice(-showMax);
+            chartData.forEach(r=>{
+                const pct=Math.max(15,((parseFloat(r.weight)-minW+0.5)/(range+1))*100);
+                html+=`<div style="flex:1;text-align:center"><div style="height:100px;display:flex;align-items:flex-end"><div class="weight-bar" style="height:${pct}%;width:100%"><span class="weight-bar-label">${r.weight}</span></div></div><div class="weight-bar-date">${r.date.slice(5)}</div></div>`;
+            });
+            html+=`</div></div>`;
+        }
+        // Records list
+        html+=`<div class="card"><div class="card-title" style="font-size:13px">Kayitlar (${records.length})</div>`;
+        records.forEach((r,i)=>{
+            let changeHtml='';
+            if(i<records.length-1){
+                const prev=records[i+1];
+                const ch=(parseFloat(r.weight)-parseFloat(prev.weight)).toFixed(1);
+                if(parseFloat(ch)>0)changeHtml=`<div class="weight-record-change wr-up">+${ch}</div>`;
+                else if(parseFloat(ch)<0)changeHtml=`<div class="weight-record-change wr-down">${ch}</div>`;
+                else changeHtml=`<div class="weight-record-change wr-same">0</div>`;
+            }
+            html+=`<div class="weight-record">
+                <div class="weight-record-date"><div class="wr-date">${formatDate(r.date)}</div><div class="wr-day">${getDayName(r.date)}</div></div>
+                <div class="weight-record-value">${r.weight}<span> kg</span></div>
+                ${changeHtml}
+                <div class="weight-record-notes">${r.notes||''}</div>
+                <div class="weight-record-actions">
+                    <button class="btn btn-outline btn-sm" style="padding:4px 8px;font-size:11px" onclick="editWeight('${r.id}')">&#9998;</button>
+                    <button class="btn btn-sm" style="padding:4px 8px;font-size:11px;background:var(--danger);color:white" onclick="deleteWeight('${r.id}')">&#10005;</button>
+                </div>
+            </div>`;
+        });
+        html+=`</div>`;
+    }
+    document.getElementById('detailTabKilo').innerHTML=html;
+}
+function openWeightModal(patientId){
+    document.getElementById('weightPatientId').value=patientId;
+    document.getElementById('weightEditId').value='';
+    document.getElementById('weightDate').value=new Date().toISOString().split('T')[0];
+    document.getElementById('weightValue').value='';
+    document.getElementById('weightNotes').value='';
+    openModal('weightModal');
+}
+function editWeight(id){
+    const r=weightRecords.find(x=>x.id===id);if(!r)return;
+    document.getElementById('weightPatientId').value=r.patientId;
+    document.getElementById('weightEditId').value=id;
+    document.getElementById('weightDate').value=r.date;
+    document.getElementById('weightValue').value=r.weight;
+    document.getElementById('weightNotes').value=r.notes||'';
+    openModal('weightModal');
+}
+async function saveWeight(){
+    const patientId=document.getElementById('weightPatientId').value;
+    const date=document.getElementById('weightDate').value;
+    const weight=document.getElementById('weightValue').value;
+    if(!date||!weight){showToast('Tarih ve kilo zorunlu!','error');return}
+    const data={userId:currentUser.uid,patientId,date,weight:parseFloat(weight).toFixed(1),notes:document.getElementById('weightNotes').value.trim(),updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    const eid=document.getElementById('weightEditId').value;
+    try{
+        if(eid){await db.collection('weights').doc(eid).update(data);showToast('Kilo guncellendi!','success')}
+        else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('weights').add(data);showToast('Kilo kaydedildi!','success')}
+        closeModal('weightModal');
+    }catch(e){showToast('Hata: '+e.message,'error')}
+}
+async function deleteWeight(id){
+    if(!confirm('Bu kilo kaydini silmek istediginize emin misiniz?'))return;
+    try{await db.collection('weights').doc(id).delete();showToast('Kilo kaydi silindi.','success')}catch(e){showToast('Hata: '+e.message,'error')}
+}
 
 // Quick status change - visual only until save
 let quickModalAptId=null;
