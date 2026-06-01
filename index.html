@@ -263,6 +263,22 @@
         .crop-circle{width:200px;height:200px;border-radius:50%;overflow:hidden;position:relative;border:3px solid var(--primary);cursor:grab;background:var(--bg-input);touch-action:none}
         .crop-circle:active{cursor:grabbing}
         .crop-circle img{position:absolute;user-select:none;-webkit-user-drag:none;min-width:100%;min-height:100%}
+        /* Grouped appointment list */
+        .apt-day-group{margin-bottom:16px}
+        .apt-day-header{display:flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 16px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));border-radius:12px;border-left:3px solid var(--primary)}
+        .apt-day-header .adh-date{font-size:15px;font-weight:700;color:var(--text);flex:1}
+        .apt-day-header .adh-count{font-size:12px;color:var(--primary-light);font-weight:600;background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:10px}
+        .apt-day-header .adh-day{font-size:12px;color:var(--text-muted);font-weight:500}
+        .apt-day-empty{padding:12px 16px;color:var(--text-muted);font-size:13px;font-style:italic}
+        .apt-list-item{display:flex;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:6px;background:var(--bg-input);gap:12px;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
+        .apt-list-item:hover{border-color:rgba(108,99,255,0.2);background:rgba(108,99,255,0.06);transform:translateX(4px)}
+        .apt-list-time{font-size:15px;font-weight:700;color:var(--primary-light);min-width:55px}
+        .apt-list-info{flex:1;min-width:0}
+        .apt-list-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .apt-list-meta{font-size:12px;color:var(--text-muted)}
+        .apt-page-btn{padding:8px 16px;border-radius:10px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:inherit;font-size:13px;transition:all 0.2s}
+        .apt-page-btn:hover{border-color:var(--primary);color:var(--primary)}
+        .apt-page-btn.disabled{opacity:0.3;pointer-events:none}
         .type-item{display:flex;align-items:center;gap:14px;padding:14px 16px;background:var(--bg-input);border-radius:12px;margin-bottom:8px;transition:all 0.2s}
         .type-item:hover{background:rgba(108,99,255,0.06)}
         .type-toggle{width:44px;height:24px;border-radius:12px;background:rgba(136,136,170,0.2);position:relative;cursor:pointer;transition:background 0.3s;flex-shrink:0}
@@ -320,13 +336,16 @@
         <div id="page-appointments" class="page">
             <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><h1>Randevular</h1></div><div class="header-actions"><button class="btn btn-primary btn-sm" onclick="openNewAppointmentModal()">+ Yeni Randevu</button></div></div>
             <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="aptSearch" placeholder="Hasta adi ile ara..." oninput="renderAppointments()"></div>
-            <div class="filter-bar"><button class="filter-btn active" onclick="filterApt('all',this)">Tumu</button><button class="filter-btn" onclick="filterApt('bekliyor',this)">Bekliyor</button><button class="filter-btn" onclick="filterApt('geldi',this)">Geldi</button><button class="filter-btn" onclick="filterApt('gelmedi',this)">Gelmedi</button><button class="filter-btn" onclick="filterApt('iptal',this)">Iptal</button></div>
-            <div class="card"><div class="table-container"><table><thead><tr><th>Tarih</th><th>Saat</th><th>Hasta</th><th>Tur</th><th>Durum</th><th>Islem</th></tr></thead><tbody id="appointmentTableBody"></tbody></table></div></div>
+            <div class="filter-bar" id="aptDateFilters"></div>
+            <div class="filter-bar" id="aptStatusFilters"></div>
+            <div id="aptResultInfo" style="font-size:13px;color:var(--text-muted);margin-bottom:12px"></div>
+            <div id="aptGroupedList"></div>
+            <div id="aptPagination" style="display:flex;justify-content:center;gap:12px;margin-top:16px"></div>
         </div>
         <div id="page-patients" class="page">
             <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><h1>Hastalar</h1></div><div class="header-actions"><button class="btn btn-primary btn-sm" onclick="openNewPatientModal()">+ Yeni Hasta</button></div></div>
             <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="patientSearch" placeholder="Hasta adi veya telefon ile ara..." oninput="renderPatients()"></div>
-            <div class="filter-bar"><button class="filter-btn active" onclick="filterPatient('all',this)">Tumu</button><button class="filter-btn" onclick="filterPatient('aktif',this)">Aktif</button><button class="filter-btn" onclick="filterPatient('tamamlandi',this)">Tamamlandi</button><button class="filter-btn" onclick="filterPatient('beklemede',this)">Beklemede</button><button class="filter-btn" onclick="filterPatient('bugun',this)" style="border-color:var(--primary)">Bugunun Hastalari</button></div>
+            <div class="filter-bar" id="patientFilterBar"></div>
             <div id="patientList" class="patient-grid"></div>
         </div>
         <div id="page-settings" class="page">
@@ -468,17 +487,75 @@ function updateStats(){
     document.getElementById('statNoShow').textContent=appointments.filter(a=>a.date.startsWith(new Date().toISOString().slice(0,7))&&a.status==='gelmedi').length;
 }
 
+let aptDateFilter='thisWeek',aptPage=0;const APT_PER_PAGE=20;
+
 function renderAppointments(){
     const search=document.getElementById('aptSearch').value.toLowerCase();
+    const today=new Date().toISOString().split('T')[0];
     let f=appointments;
+
+    // Date filter
+    if(aptDateFilter==='today')f=f.filter(a=>a.date===today);
+    else if(aptDateFilter==='thisWeek'){const mon=getMonday(new Date()),sun=new Date(mon);sun.setDate(sun.getDate()+6);f=f.filter(a=>a.date>=mon.toISOString().split('T')[0]&&a.date<=sun.toISOString().split('T')[0])}
+    else if(aptDateFilter==='thisMonth'){const m=today.slice(0,7);f=f.filter(a=>a.date.startsWith(m))}
+    else if(aptDateFilter==='upcoming')f=f.filter(a=>a.date>=today);
+    else if(aptDateFilter==='past')f=f.filter(a=>a.date<today);
+
+    // Status filter
     if(currentFilter!=='all')f=f.filter(a=>a.status===currentFilter);
+
+    // Search
     if(search)f=f.filter(a=>{const p=patients.find(p=>p.id===a.patientId);return p&&p.name.toLowerCase().includes(search)});
-    f.sort((a,b)=>b.date.localeCompare(a.date)||b.time.localeCompare(a.time));
-    const tbody=document.getElementById('appointmentTableBody');
-    if(!f.length){tbody.innerHTML='<tr><td colspan="6" class="text-center" style="color:var(--text-muted)">Randevu bulunamadi</td></tr>';return}
-    tbody.innerHTML=f.map(a=>{const p=patients.find(p=>p.id===a.patientId);return`<tr><td>${formatDate(a.date)}</td><td><strong>${a.time}</strong></td><td>${p?p.name:'?'}</td><td>${getTypeName(a.type)}</td><td><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></td><td><button class="btn btn-sm" style="margin-right:4px;background:linear-gradient(135deg,var(--primary),#a78bfa);color:white" onclick="editAppointment('${a.id}')">Duzenle</button><button class="btn btn-danger btn-sm" onclick="deleteAppointment('${a.id}')">Sil</button></td></tr>`}).join('');
+
+    // Sort by date desc then time asc
+    f.sort((a,b)=>aptDateFilter==='past'?b.date.localeCompare(a.date)||a.time.localeCompare(b.time):a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+
+    // Render date filter buttons
+    const dc=document.getElementById('aptDateFilters');
+    const dateBtns=[['today','Bugun'],['thisWeek','Bu Hafta'],['thisMonth','Bu Ay'],['upcoming','Gelecek'],['past','Gecmis'],['all','Tumu']];
+    dc.innerHTML=dateBtns.map(([k,v])=>`<button class="filter-btn ${aptDateFilter===k?'active':''}" onclick="aptDateFilter='${k}';aptPage=0;renderAppointments()">${v}</button>`).join('');
+
+    // Render status filter buttons
+    const sc=document.getElementById('aptStatusFilters');
+    const statusBtns=[['all','Tumu'],['bekliyor','Bekliyor'],['geldi','Geldi'],['gelmedi','Gelmedi'],['iptal','Iptal']];
+    sc.innerHTML=statusBtns.map(([k,v])=>{const cnt=k==='all'?f.length:f.filter(a=>a.status===k).length;return`<button class="filter-btn ${currentFilter===k?'active':''}" onclick="currentFilter='${k}';aptPage=0;renderAppointments()">${v} (${cnt})</button>`}).join('');
+
+    // Re-filter after status count (status was already applied to f)
+    // Result info
+    document.getElementById('aptResultInfo').textContent=f.length+' randevu bulundu';
+
+    // Pagination
+    const totalPages=Math.ceil(f.length/APT_PER_PAGE);
+    const paged=f.slice(aptPage*APT_PER_PAGE,(aptPage+1)*APT_PER_PAGE);
+
+    // Group by date
+    const groups={};
+    paged.forEach(a=>{if(!groups[a.date])groups[a.date]=[];groups[a.date].push(a)});
+
+    const el=document.getElementById('aptGroupedList');
+    if(!f.length){el.innerHTML='<div class="empty-state"><p>Randevu bulunamadi</p></div>';document.getElementById('aptPagination').innerHTML='';return}
+
+    let html='';
+    Object.entries(groups).forEach(([date,apts])=>{
+        html+=`<div class="apt-day-group"><div class="apt-day-header"><div><div class="adh-date">${formatDate(date)}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div>`;
+        apts.forEach(a=>{
+            const p=patients.find(p=>p.id===a.patientId);
+            const w=getLatestWeight(a.patientId);
+            html+=`<div class="apt-list-item" onclick="showAptQuickModal('${a.id}')">
+                <div class="apt-list-time">${a.time}</div>
+                <div class="apt-list-info"><div class="apt-list-name">${p?p.name:'?'}</div><div class="apt-list-meta">${getTypeName(a.type)} - ${a.duration} dk${w?' &middot; '+w+' kg':''}</div></div>
+                <span class="apt-status status-${a.status}">${getStatusName(a.status)}</span>
+            </div>`;
+        });
+        html+=`</div>`;
+    });
+    el.innerHTML=html;
+
+    // Pagination buttons
+    const pg=document.getElementById('aptPagination');
+    if(totalPages<=1){pg.innerHTML='';return}
+    pg.innerHTML=`<button class="apt-page-btn ${aptPage===0?'disabled':''}" onclick="aptPage--;renderAppointments()">&#9664; Onceki</button><span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center">${aptPage+1} / ${totalPages}</span><button class="apt-page-btn ${aptPage>=totalPages-1?'disabled':''}" onclick="aptPage++;renderAppointments()">Sonraki &#9654;</button>`;
 }
-function filterApt(f,b){currentFilter=f;document.querySelectorAll('.filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderAppointments()}
 
 function openNewAppointmentModal(){
     document.getElementById('aptModalTitle').textContent='Yeni Randevu';document.getElementById('aptEditId').value='';document.getElementById('aptPatient').value='';document.getElementById('aptPatientSearch').value='';
@@ -502,7 +579,19 @@ async function saveAppointment(){
 }
 async function deleteAppointment(id){if(!confirm('Bu randevuyu silmek istediginize emin misiniz?'))return;try{await db.collection('appointments').doc(id).delete();showToast('Randevu silindi.','success')}catch(e){showToast('Hata: '+e.message,'error')}}
 
+function renderPatientFilters(){
+    const today=new Date().toISOString().split('T')[0];
+    const cAll=patients.length;
+    const cAktif=patients.filter(p=>(p.status||'aktif')==='aktif').length;
+    const cTam=patients.filter(p=>p.status==='tamamlandi').length;
+    const cBek=patients.filter(p=>p.status==='beklemede').length;
+    const cBugun=appointments.filter(a=>a.date===today).length;
+    const fb=document.getElementById('patientFilterBar');
+    const f=patientFilter;
+    fb.innerHTML=`<button class="filter-btn ${f==='all'?'active':''}" onclick="filterPatient('all',this)">Tumu (${cAll})</button><button class="filter-btn ${f==='aktif'?'active':''}" onclick="filterPatient('aktif',this)">Aktif (${cAktif})</button><button class="filter-btn ${f==='tamamlandi'?'active':''}" onclick="filterPatient('tamamlandi',this)">Tamamlandi (${cTam})</button><button class="filter-btn ${f==='beklemede'?'active':''}" onclick="filterPatient('beklemede',this)">Beklemede (${cBek})</button><button class="filter-btn ${f==='bugun'?'active':''}" onclick="filterPatient('bugun',this)" style="border-color:${f==='bugun'?'':'var(--primary)'}">Bugunun Hastalari (${cBugun})</button>`;
+}
 function renderPatients(){
+    renderPatientFilters();
     const search=document.getElementById('patientSearch').value.toLowerCase();
     const el=document.getElementById('patientList');
     // Bugunun hastalari filtresi
@@ -540,7 +629,7 @@ function renderPatients(){
         return`<div class="patient-card" onclick="showPatientDetail('${p.id}')"><div class="patient-header"><div class="patient-avatar">${av}</div><div><div class="patient-name">${p.name}</div><div class="patient-phone">${p.phone||'Telefon yok'}</div></div><span class="patient-status-badge pstatus-${st}">${stName}</span></div><div class="patient-stats"><div class="patient-stat">Randevu: <strong>${ac}</strong></div>${p.email?`<div class="patient-stat">${p.email}</div>`:''}</div></div>`
     }).join('');
 }
-function filterPatient(f,b){patientFilter=f;document.querySelectorAll('#page-patients .filter-btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');renderPatients()}
+function filterPatient(f){patientFilter=f;renderPatients()}
 function openNewPatientModal(){document.getElementById('patientModalTitle').textContent='Yeni Hasta';document.getElementById('patientEditId').value='';document.getElementById('patientName').value='';document.getElementById('patientPhone').value='';document.getElementById('patientEmail').value='';document.getElementById('patientBirthdate').value='';document.getElementById('patientStatus').value='aktif';document.getElementById('patientNotes').value='';document.getElementById('patientPhotoData').value='';document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden');openModal('patientModal')}
 function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;document.getElementById('patientModalTitle').textContent='Hasta Duzenle';document.getElementById('patientEditId').value=id;document.getElementById('patientName').value=p.name;document.getElementById('patientPhone').value=p.phone||'';document.getElementById('patientEmail').value=p.email||'';document.getElementById('patientBirthdate').value=p.birthdate||'';document.getElementById('patientStatus').value=p.status||'aktif';document.getElementById('patientNotes').value=p.notes||'';document.getElementById('patientPhotoData').value=p.photo||'';if(p.photo){document.getElementById('photoPreview').src=p.photo;document.getElementById('photoPreview').classList.remove('hidden');document.getElementById('photoPlaceholder').classList.add('hidden')}else{document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden')}closeModal('patientDetailModal');openModal('patientModal')}
 // Photo crop system
@@ -808,7 +897,7 @@ function showDayModal(dateStr){
             const stName=getStatusName(a.status);
             return`<div class="appointment-item" onclick="closeModal('dayModal');showAptQuickModal('${a.id}')" style="cursor:pointer">
                 <div style="min-width:50px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--primary-light)">${a.time}</div></div>
-                <div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div>
+                <div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk${(()=>{const w=getLatestWeight(a.patientId);return w?' &middot; '+w+' kg':''})()}</div></div>
                 <span class="apt-status status-${a.status}">${stName}</span>
             </div>`;
         }).join('');
@@ -833,6 +922,7 @@ function showAptQuickModal(id){
         <div style="text-align:center;margin-bottom:20px">
             <div class="patient-avatar" style="width:56px;height:56px;font-size:22px;margin:0 auto 10px;border-radius:16px">${p&&p.photo?`<img src="${p.photo}" alt="${p.name}">`:((p?p.name:'?').charAt(0).toUpperCase())}</div>
             <h3 style="font-size:18px;margin-bottom:4px">${p?p.name:'Bilinmeyen'}</h3>
+            ${(()=>{const w=getLatestWeight(a.patientId);return w?`<p style="color:var(--primary-light);font-size:13px;font-weight:600;margin-top:4px">Guncel Kilo: ${w} kg</p>`:''})()}
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px">${statusBtns}</div>
         <div style="background:var(--bg-input);border-radius:12px;padding:14px;margin-bottom:16px">
@@ -919,18 +1009,11 @@ function goToPage(page,filter){
     document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));
     document.querySelectorAll('.nav-menu li').forEach(li=>{if(li.textContent.trim().toLowerCase().includes(page==='appointments'?'randevu':page==='patients'?'hasta':page))li.classList.add('active')});
     if(page==='appointments'&&filter){
-        if(filter==='today'){
-            document.getElementById('aptSearch').value='';
-            currentFilter='all';
-            document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-            document.querySelectorAll('.filter-btn').forEach(b=>{if(b.textContent==='Tumu')b.classList.add('active')});
-            renderAppointments();
-        }else if(filter==='gelmedi'){
-            currentFilter='gelmedi';
-            document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
-            document.querySelectorAll('.filter-btn').forEach(b=>{if(b.textContent==='Gelmedi')b.classList.add('active')});
-            renderAppointments();
-        }
+        document.getElementById('aptSearch').value='';
+        aptPage=0;
+        if(filter==='today'){aptDateFilter='today';currentFilter='all'}
+        else if(filter==='gelmedi'){aptDateFilter='thisMonth';currentFilter='gelmedi'}
+        renderAppointments();
     }
     if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);
     document.getElementById('sidebar').classList.remove('open');
