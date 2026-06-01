@@ -110,8 +110,8 @@
         .fc .fc-scrollgrid-section>th{border:none !important}
         .fc .fc-timegrid-slot{height:55px !important}
         .fc .fc-timegrid-slot-label{color:var(--text-muted);font-size:12px}
-        .fc .fc-more-link{color:var(--primary-light) !important;font-weight:600;font-size:11px;padding:3px 6px;background:rgba(108,99,255,0.1);border-radius:6px;margin:2px 4px}
-        .fc .fc-more-link:hover{background:rgba(108,99,255,0.2)}
+        .fc .fc-more-link{color:var(--primary-light) !important;font-weight:700;font-size:11px;padding:4px 8px;background:rgba(108,99,255,0.12);border-radius:8px;margin:2px 4px;text-decoration:none !important}
+        .fc .fc-more-link:hover{background:rgba(108,99,255,0.25)}
         .fc .evt-bekliyor{background:linear-gradient(135deg,#6C63FF,#a78bfa) !important}
         .fc .evt-geldi{background:linear-gradient(135deg,#22c55e,#4ade80) !important}
         .fc .evt-gelmedi{background:linear-gradient(135deg,#ef4444,#f97316) !important}
@@ -295,6 +295,15 @@
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('patientModal')">Iptal</button><button class="btn btn-primary" onclick="savePatient()">Kaydet</button></div>
 </div></div>
 <div class="modal-overlay" id="patientDetailModal"><div class="modal"><div class="modal-title"><span>Hasta Detay</span><button class="modal-close" onclick="closeModal('patientDetailModal')">&times;</button></div><div id="patientDetailContent"></div></div></div>
+<div class="modal-overlay" id="aptQuickModal"><div class="modal" style="max-width:400px">
+    <div class="modal-title"><span>Randevu Detay</span><button class="modal-close" onclick="closeModal('aptQuickModal')">&times;</button></div>
+    <div id="aptQuickContent"></div>
+</div></div>
+<div class="modal-overlay" id="dayModal"><div class="modal" style="max-width:440px">
+    <div class="modal-title"><span id="dayModalTitle">Randevular</span><button class="modal-close" onclick="closeModal('dayModal')">&times;</button></div>
+    <div id="dayModalContent"></div>
+    <div class="modal-actions"><button class="btn btn-primary btn-sm" id="dayModalAddBtn" onclick="">+ Randevu Ekle</button></div>
+</div></div>
 <div class="toast-container" id="toastContainer"></div>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -410,6 +419,55 @@ async function savePatient(){const name=document.getElementById('patientName').v
 async function deletePatient(id){if(!confirm('Bu hastayi silmek istediginize emin misiniz?'))return;try{const s=await db.collection('appointments').where('patientId','==',id).get();const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));b.delete(db.collection('patients').doc(id));await b.commit();closeModal('patientDetailModal');showToast('Hasta silindi.','success')}catch(e){showToast('Hata: '+e.message,'error')}}
 function showPatientDetail(id){const p=patients.find(x=>x.id===id);if(!p)return;const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;document.getElementById('patientDetailContent').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><span class="patient-status-badge pstatus-${st}" style="margin-top:8px">${stName}</span><p style="color:var(--text-muted);font-size:13px;margin-top:8px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>${p.notes?`<div class="card"><div class="card-title">Notlar</div><p style="font-size:14px;color:var(--text-muted)">${p.notes}</p></div>`:''}<div class="card"><div class="card-title">Randevu Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div><div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-primary btn-sm" onclick="editPatient('${id}')">Duzenle</button></div>`;openModal('patientDetailModal')}
 
+// Day modal - o gunun tum randevulari
+function showDayModal(dateStr){
+    const dayApts=appointments.filter(a=>a.date===dateStr).sort((a,b)=>a.time.localeCompare(b.time));
+    const dayName=getDayName(dateStr);
+    const dateFormatted=formatDate(dateStr);
+    document.getElementById('dayModalTitle').textContent=`${dateFormatted} ${dayName}`;
+    document.getElementById('dayModalAddBtn').onclick=function(){closeModal('dayModal');openNewAppointmentModal();document.getElementById('aptDate').value=dateStr};
+    if(!dayApts.length){
+        document.getElementById('dayModalContent').innerHTML='<div class="empty-state" style="padding:24px"><p>Bu gun randevu yok</p></div>';
+    }else{
+        document.getElementById('dayModalContent').innerHTML=dayApts.map(a=>{
+            const p=patients.find(x=>x.id===a.patientId);
+            const stName=getStatusName(a.status);
+            return`<div class="appointment-item" onclick="closeModal('dayModal');showAptQuickModal('${a.id}')" style="cursor:pointer">
+                <div style="min-width:50px;text-align:center"><div style="font-size:18px;font-weight:700;color:var(--primary-light)">${a.time}</div></div>
+                <div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div>
+                <span class="apt-status status-${a.status}">${stName}</span>
+            </div>`;
+        }).join('');
+    }
+    openModal('dayModal');
+}
+
+// Quick appointment modal from calendar
+function showAptQuickModal(id){
+    const a=appointments.find(x=>x.id===id);if(!a)return;
+    const p=patients.find(x=>x.id===a.patientId);
+    const stName=getStatusName(a.status);
+    const colors={bekliyor:'var(--warning)',geldi:'var(--success)',gelmedi:'var(--danger)',iptal:'var(--text-muted)'};
+    document.getElementById('aptQuickContent').innerHTML=`
+        <div style="text-align:center;margin-bottom:20px">
+            <div class="patient-avatar" style="width:56px;height:56px;font-size:22px;margin:0 auto 10px;border-radius:16px">${p&&p.photo?`<img src="${p.photo}" alt="${p.name}">`:((p?p.name:'?').charAt(0).toUpperCase())}</div>
+            <h3 style="font-size:18px;margin-bottom:4px">${p?p.name:'Bilinmeyen'}</h3>
+            <span class="apt-status status-${a.status}" style="font-size:12px">${stName}</span>
+        </div>
+        <div style="background:var(--bg-input);border-radius:12px;padding:14px;margin-bottom:16px">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--text-muted);font-size:13px">Tarih</span><span style="font-size:13px;font-weight:600">${formatDate(a.date)}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--text-muted);font-size:13px">Saat</span><span style="font-size:13px;font-weight:600">${a.time}</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px"><span style="color:var(--text-muted);font-size:13px">Sure</span><span style="font-size:13px;font-weight:600">${a.duration} dk</span></div>
+            <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted);font-size:13px">Tur</span><span style="font-size:13px;font-weight:600">${getTypeName(a.type)}</span></div>
+        </div>
+        ${a.notes?`<div style="background:var(--bg-input);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-muted)">${a.notes}</div>`:''}
+        <div style="display:flex;gap:8px">
+            <button class="btn btn-danger btn-sm" style="flex:1" onclick="closeModal('aptQuickModal');deleteAppointment('${a.id}')">Sil</button>
+            <button class="btn btn-outline btn-sm" style="flex:1" onclick="closeModal('aptQuickModal');editAppointment('${a.id}')">Duzenle</button>
+        </div>`;
+    openModal('aptQuickModal');
+}
+
 // Patient search dropdown
 function filterPatientDropdown(){const s=document.getElementById('aptPatientSearch').value.toLowerCase();const d=document.getElementById('patientDropdown');const f=patients.filter(p=>p.name.toLowerCase().includes(s));d.innerHTML=f.map(p=>`<div class="dropdown-item" onclick="selectPatient('${p.id}','${p.name.replace(/'/g,"\\'")}')">${p.name}</div>`).join('');f.length?d.classList.add('show'):d.classList.remove('show')}
 function showPatientDropdown(){const d=document.getElementById('patientDropdown');d.innerHTML=patients.map(p=>`<div class="dropdown-item" onclick="selectPatient('${p.id}','${p.name.replace(/'/g,"\\'")}')">${p.name}</div>`).join('');patients.length?d.classList.add('show'):0}
@@ -435,12 +493,13 @@ async function renderCalendar(){
         height:'auto',events:evts,
         eventContent:function(arg){
             const ep=arg.event.extendedProps;
-            return{html:`<div class="fc-event-main"><span class="evt-name">${ep.patientName}</span><span class="evt-time">${ep.time} - ${ep.duration}dk</span><span class="evt-type">${ep.type}</span></div>`};
+            return{html:`<div class="fc-event-main"><span class="evt-name">${ep.patientName}</span><span class="evt-time">${ep.time}</span></div>`};
         },
-        dateClick:function(info){openNewAppointmentModal();document.getElementById('aptDate').value=info.dateStr},
-        eventClick:function(info){editAppointment(info.event.id)},
-        dayMaxEvents:3,
-        moreLinkText:function(n){return'+'+n+' daha'}
+        dateClick:function(info){showDayModal(info.dateStr)},
+        eventClick:function(info){info.jsEvent.stopPropagation();showAptQuickModal(info.event.id)},
+        dayMaxEvents:2,
+        moreLinkClick:function(info){showDayModal(info.date.toISOString().split('T')[0]);return'none'},
+        eventOrder:'start'
     });
     calendarInstance.render();
 }
