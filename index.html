@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diyetisyen Randevu Sistemi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #6C63FF;
+            --primary-light: #8B85FF;
+            --primary-dark: #5A52E0;
+            --bg: #0F0F1A;
+            --bg-card: #1A1A2E;
+            --bg-input: #252540;
+            --text: #EAEAEA;
+            --text-muted: #8888AA;
+            --success: #4ECB71;
+            --danger: #FF6B6B;
+            --warning: #FFB84D;
+            --info: #4DABF7;
+            --border: #2A2A45;
+            --shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+        .login-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; }
+        .login-box { background: var(--bg-card); border-radius: 20px; padding: 50px 40px; width: 100%; max-width: 420px; box-shadow: var(--shadow); text-align: center; }
+        .login-box h1 { font-size: 28px; margin-bottom: 8px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .login-box p { color: var(--text-muted); margin-bottom: 30px; font-size: 14px; }
+        .form-group { margin-bottom: 16px; text-align: left; }
+        .form-group label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px 16px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; font-family: inherit; transition: border 0.2s; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); }
+        .form-group textarea { resize: vertical; min-height: 80px; }
+        .btn { padding: 12px 24px; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: inherit; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; width: 100%; justify-content: center; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 15px rgba(108,99,255,0.4); }
+        .btn-success { background: var(--success); color: #111; }
+        .btn-danger { background: var(--danger); color: white; }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
+        .btn-outline:hover { border-color: var(--primary); color: var(--primary); }
+        .btn-sm { padding: 8px 16px; font-size: 12px; }
+        .error-msg { color: var(--danger); font-size: 13px; margin-top: 10px; display: none; }
+        .app-container { display: none; }
+        .sidebar { position: fixed; left: 0; top: 0; width: 240px; height: 100vh; background: var(--bg-card); border-right: 1px solid var(--border); padding: 20px 0; z-index: 100; transition: transform 0.3s; }
+        .sidebar-logo { padding: 0 20px; margin-bottom: 30px; }
+        .sidebar-logo h2 { font-size: 18px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .sidebar-logo span { font-size: 12px; color: var(--text-muted); }
+        .nav-menu { list-style: none; }
+        .nav-menu li { padding: 12px 20px; cursor: pointer; display: flex; align-items: center; gap: 12px; color: var(--text-muted); transition: all 0.2s; font-size: 14px; border-left: 3px solid transparent; }
+        .nav-menu li:hover { color: var(--text); background: rgba(108,99,255,0.05); }
+        .nav-menu li.active { color: var(--primary); background: rgba(108,99,255,0.1); border-left-color: var(--primary); }
+        .nav-menu li svg { width: 20px; height: 20px; }
+        .main-content { margin-left: 240px; padding: 24px; min-height: 100vh; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+        .header h1 { font-size: 24px; font-weight: 700; }
+        .header-actions { display: flex; gap: 12px; align-items: center; }
+        .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 24px; cursor: pointer; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--bg-card); border-radius: 14px; padding: 20px; border: 1px solid var(--border); }
+        .stat-card .stat-label { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+        .stat-card .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-card .stat-icon { font-size: 24px; float: right; }
+        .card { background: var(--bg-card); border-radius: 14px; padding: 20px; border: 1px solid var(--border); margin-bottom: 16px; }
+        .card-title { font-size: 16px; font-weight: 600; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; }
+        .appointment-item { display: flex; align-items: center; padding: 12px; border-radius: 10px; margin-bottom: 8px; background: var(--bg-input); gap: 12px; transition: transform 0.2s; }
+        .appointment-item:hover { transform: translateX(4px); }
+        .apt-time { font-size: 14px; font-weight: 600; color: var(--primary); min-width: 60px; }
+        .apt-info { flex: 1; }
+        .apt-info .apt-name { font-size: 14px; font-weight: 500; }
+        .apt-info .apt-type { font-size: 12px; color: var(--text-muted); }
+        .apt-status { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        .status-bekliyor { background: rgba(255,184,77,0.15); color: var(--warning); }
+        .status-geldi { background: rgba(78,203,113,0.15); color: var(--success); }
+        .status-gelmedi { background: rgba(255,107,107,0.15); color: var(--danger); }
+        .status-iptal { background: rgba(136,136,170,0.15); color: var(--text-muted); }
+        .fc { background: var(--bg-card); border-radius: 14px; padding: 16px; border: 1px solid var(--border); }
+        .fc .fc-toolbar-title { font-size: 18px !important; color: var(--text); }
+        .fc .fc-button { background: var(--bg-input) !important; border: 1px solid var(--border) !important; color: var(--text) !important; font-size: 13px !important; }
+        .fc .fc-button-active { background: var(--primary) !important; border-color: var(--primary) !important; }
+        .fc .fc-daygrid-day { background: var(--bg-card); }
+        .fc .fc-daygrid-day-number { color: var(--text); font-size: 13px; }
+        .fc .fc-day-today { background: rgba(108,99,255,0.1) !important; }
+        .fc .fc-event { background: var(--primary) !important; border: none !important; border-radius: 4px !important; padding: 2px 6px !important; font-size: 11px !important; }
+        .fc .fc-col-header-cell-cushion { color: var(--text-muted); font-size: 13px; }
+        .fc td, .fc th { border-color: var(--border) !important; }
+        .fc .fc-scrollgrid { border-color: var(--border) !important; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal { background: var(--bg-card); border-radius: 16px; padding: 30px; width: 100%; max-width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+        .modal-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-close { background: none; border: none; color: var(--text-muted); font-size: 24px; cursor: pointer; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        .patient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+        .patient-card { background: var(--bg-card); border-radius: 14px; padding: 20px; border: 1px solid var(--border); cursor: pointer; transition: all 0.2s; }
+        .patient-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+        .patient-header { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
+        .patient-avatar { width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-light)); display: flex; align-items: center; justify-content: center; font-size: 20px; font-weight: 700; color: white; overflow: hidden; }
+        .patient-avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .patient-name { font-size: 16px; font-weight: 600; }
+        .patient-phone { font-size: 13px; color: var(--text-muted); }
+        .patient-stats { display: flex; gap: 16px; margin-top: 12px; }
+        .patient-stat { font-size: 12px; color: var(--text-muted); }
+        .patient-stat strong { color: var(--text); }
+        .search-box { position: relative; margin-bottom: 16px; }
+        .search-box input { width: 100%; padding: 12px 16px 12px 42px; background: var(--bg-input); border: 1px solid var(--border); border-radius: 10px; color: var(--text); font-size: 14px; font-family: inherit; }
+        .search-box input:focus { outline: none; border-color: var(--primary); }
+        .search-box svg { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--text-muted); width: 18px; height: 18px; }
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .filter-btn { padding: 6px 14px; border-radius: 20px; font-size: 12px; border: 1px solid var(--border); background: transparent; color: var(--text-muted); cursor: pointer; font-family: inherit; }
+        .filter-btn.active { background: var(--primary); border-color: var(--primary); color: white; }
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 2000; }
+        .toast { padding: 14px 20px; border-radius: 10px; margin-bottom: 8px; font-size: 14px; animation: slideIn 0.3s ease; display: flex; align-items: center; gap: 10px; }
+        .toast-success { background: var(--success); color: #111; }
+        .toast-error { background: var(--danger); color: white; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .page { display: none; }
+        .page.active { display: block; }
+        .table-container { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 12px; font-size: 12px; color: var(--text-muted); text-transform: uppercase; border-bottom: 1px solid var(--border); }
+        td { padding: 12px; font-size: 14px; border-bottom: 1px solid var(--border); }
+        tr:hover { background: rgba(108,99,255,0.05); }
+        @media (max-width: 768px) {
+            .sidebar { transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+            .main-content { margin-left: 0; }
+            .hamburger { display: block; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .patient-grid { grid-template-columns: 1fr; }
+            .modal { padding: 20px; margin: 10px; }
+        }
+        .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
+        .overlay.active { display: block; }
+        .photo-upload { width: 80px; height: 80px; border-radius: 50%; background: var(--bg-input); border: 2px dashed var(--border); display: flex; align-items: center; justify-content: center; cursor: pointer; margin: 0 auto 16px; overflow: hidden; transition: border-color 0.2s; }
+        .photo-upload:hover { border-color: var(--primary); }
+        .photo-upload img { width: 100%; height: 100%; object-fit: cover; }
+        .photo-upload svg { color: var(--text-muted); width: 28px; height: 28px; }
+        .hidden { display: none; }
+        .text-center { text-align: center; }
+        .mt-16 { margin-top: 16px; }
+        .mb-16 { margin-bottom: 16px; }
+        .flex { display: flex; }
+        .gap-8 { gap: 8px; }
+        .items-center { align-items: center; }
+        .empty-state { text-align: center; padding: 40px; color: var(--text-muted); }
+        .empty-state p { font-size: 14px; }
+    </style>
+</head>
+<body>
+<div id="loginPage" class="login-container">
+    <div class="login-box">
+        <h1>Diyetisyen Randevu</h1>
+        <p>Randevu yonetim sistemine giris yapin</p>
+        <div class="form-group">
+            <label>E-posta</label>
+            <input type="email" id="loginEmail" placeholder="ornek@mail.com">
+        </div>
+        <div class="form-group">
+            <label>Sifre</label>
+            <input type="password" id="loginPassword" placeholder="Sifreniz">
+        </div>
+        <div class="error-msg" id="loginError"></div>
+        <button class="btn btn-primary mt-16" onclick="login()">Giris Yap</button>
+        <p style="margin-top:16px;font-size:12px;color:var(--text-muted)">
+            Ilk kez mi giriyorsunuz? <a href="#" onclick="register()" style="color:var(--primary)">Kayit Ol</a>
+        </p>
+    </div>
+</div>
+<div id="appContainer" class="app-container">
+    <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
+    <nav class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+            <h2>Diyetisyen</h2>
+            <span>Randevu Sistemi</span>
+        </div>
+        <ul class="nav-menu">
+            <li class="active" onclick="showPage('dashboard')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Ana Sayfa
+            </li>
+            <li onclick="showPage('calendar')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Takvim
+            </li>
+            <li onclick="showPage('appointments')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                Randevular
+            </li>
+            <li onclick="showPage('patients')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+                Hastalar
+            </li>
+            <li onclick="logout()" style="margin-top:auto;color:var(--danger)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                Cikis Yap
+            </li>
+        </ul>
+    </nav>
+    <div class="main-content">
+        <div id="page-dashboard" class="page active">
+            <div class="header">
+                <div class="flex items-center gap-8">
+                    <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+                    <h1>Ana Sayfa</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openNewAppointmentModal()">+ Yeni Randevu</button>
+                </div>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon">&#128197;</div><div class="stat-label">Bugunun Randevulari</div><div class="stat-value" id="statToday">0</div></div>
+                <div class="stat-card"><div class="stat-icon">&#128198;</div><div class="stat-label">Bu Haftaki Randevular</div><div class="stat-value" id="statWeek">0</div></div>
+                <div class="stat-card"><div class="stat-icon">&#128101;</div><div class="stat-label">Toplam Hasta</div><div class="stat-value" id="statPatients">0</div></div>
+                <div class="stat-card"><div class="stat-icon">&#10060;</div><div class="stat-label">Gelmeyen (Bu Ay)</div><div class="stat-value" id="statNoShow">0</div></div>
+            </div>
+            <div class="card"><div class="card-title">Bugunun Randevulari</div><div id="todayAppointments"></div></div>
+            <div class="card"><div class="card-title">Yaklasan Randevular (7 Gun)</div><div id="upcomingAppointments"></div></div>
+        </div>
+        <div id="page-calendar" class="page">
+            <div class="header">
+                <div class="flex items-center gap-8">
+                    <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+                    <h1>Takvim</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openNewAppointmentModal()">+ Yeni Randevu</button>
+                    <button class="btn btn-outline btn-sm" onclick="exportWeeklyExcel()">&#128196; Excel Indir</button>
+                </div>
+            </div>
+            <div id="calendar"></div>
+        </div>
+        <div id="page-appointments" class="page">
+            <div class="header">
+                <div class="flex items-center gap-8">
+                    <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+                    <h1>Randevular</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openNewAppointmentModal()">+ Yeni Randevu</button>
+                </div>
+            </div>
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="aptSearch" placeholder="Hasta adi ile ara..." oninput="renderAppointments()">
+            </div>
+            <div class="filter-bar">
+                <button class="filter-btn active" onclick="filterApt('all', this)">Tumu</button>
+                <button class="filter-btn" onclick="filterApt('bekliyor', this)">Bekliyor</button>
+                <button class="filter-btn" onclick="filterApt('geldi', this)">Geldi</button>
+                <button class="filter-btn" onclick="filterApt('gelmedi', this)">Gelmedi</button>
+                <button class="filter-btn" onclick="filterApt('iptal', this)">Iptal</button>
+            </div>
+            <div class="card">
+                <div class="table-container">
+                    <table>
+                        <thead><tr><th>Tarih</th><th>Saat</th><th>Hasta</th><th>Tur</th><th>Durum</th><th>Islem</th></tr></thead>
+                        <tbody id="appointmentTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="page-patients" class="page">
+            <div class="header">
+                <div class="flex items-center gap-8">
+                    <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+                    <h1>Hastalar</h1>
+                </div>
+                <div class="header-actions">
+                    <button class="btn btn-primary btn-sm" onclick="openNewPatientModal()">+ Yeni Hasta</button>
+                </div>
+            </div>
+            <div class="search-box">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="patientSearch" placeholder="Hasta adi veya telefon ile ara..." oninput="renderPatients()">
+            </div>
+            <div id="patientList" class="patient-grid"></div>
+        </div>
+    </div>
+</div>
+<div class="modal-overlay" id="appointmentModal">
+    <div class="modal">
+        <div class="modal-title"><span id="aptModalTitle">Yeni Randevu</span><button class="modal-close" onclick="closeModal('appointmentModal')">&times;</button></div>
+        <div class="form-group"><label>Hasta *</label><select id="aptPatient"><option value="">Hasta secin...</option></select></div>
+        <div class="form-group"><label>Tarih *</label><input type="date" id="aptDate"></div>
+        <div class="form-group"><label>Saat *</label><input type="time" id="aptTime"></div>
+        <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="30">30 dk</option><option value="45">45 dk</option><option value="60" selected>60 dk</option><option value="90">90 dk</option></select></div>
+        <div class="form-group"><label>Randevu Turu</label><select id="aptType"><option value="ilk-gorusme">Ilk Gorusme</option><option value="kontrol">Kontrol</option><option value="olcum">Olcum</option><option value="online">Online Gorusme</option></select></div>
+        <div class="form-group"><label>Durum</label><select id="aptStatus"><option value="bekliyor">Bekliyor</option><option value="geldi">Geldi</option><option value="gelmedi">Gelmedi</option><option value="iptal">Iptal</option></select></div>
+        <div class="form-group"><label>Notlar</label><textarea id="aptNotes" placeholder="Randevu notlari..."></textarea></div>
+        <input type="hidden" id="aptEditId">
+        <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('appointmentModal')">Iptal</button><button class="btn btn-primary" onclick="saveAppointment()">Kaydet</button></div>
+    </div>
+</div>
+<div class="modal-overlay" id="patientModal">
+    <div class="modal">
+        <div class="modal-title"><span id="patientModalTitle">Yeni Hasta</span><button class="modal-close" onclick="closeModal('patientModal')">&times;</button></div>
+        <div class="photo-upload" id="photoUpload" onclick="document.getElementById('photoInput').click()">
+            <svg id="photoPlaceholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+            <img id="photoPreview" class="hidden" alt="Foto">
+        </div>
+        <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoSelect(event)">
+        <div class="form-group"><label>Ad Soyad *</label><input type="text" id="patientName" placeholder="Hasta adi"></div>
+        <div class="form-group"><label>Telefon</label><input type="tel" id="patientPhone" placeholder="05xx xxx xx xx"></div>
+        <div class="form-group"><label>E-posta</label><input type="email" id="patientEmail" placeholder="ornek@mail.com"></div>
+        <div class="form-group"><label>Dogum Tarihi</label><input type="date" id="patientBirthdate"></div>
+        <div class="form-group"><label>Notlar</label><textarea id="patientNotes" placeholder="Diyet notu, alerji, ozel durum..."></textarea></div>
+        <input type="hidden" id="patientEditId">
+        <input type="hidden" id="patientPhotoData">
+        <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('patientModal')">Iptal</button><button class="btn btn-primary" onclick="savePatient()">Kaydet</button></div>
+    </div>
+</div>
+<div class="modal-overlay" id="patientDetailModal">
+    <div class="modal">
+        <div class="modal-title"><span>Hasta Detay</span><button class="modal-close" onclick="closeModal('patientDetailModal')">&times;</button></div>
+        <div id="patientDetailContent"></div>
+    </div>
+</div>
+<div class="toast-container" id="toastContainer"></div>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.js"></script>
+<script src="https://cdn.sheetjs.com/xlsx-0.20.0/package/dist/xlsx.full.min.js"></script>
+<script>
+const firebaseConfig = {
+    apiKey: "AIzaSyALeFXLCDDZdtIyEkdalbmKbMofstkwegA",
+    authDomain: "diyetisyen-randevu-a7122.firebaseapp.com",
+    projectId: "diyetisyen-randevu-a7122",
+    storageBucket: "diyetisyen-randevu-a7122.firebasestorage.app",
+    messagingSenderId: "911944619001",
+    appId: "1:911944619001:web:bbd8fe8edfa1c8054c6328"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+const storage = firebase.storage();
+let currentUser = null;
+let appointments = [];
+let patients = [];
+let calendarInstance = null;
+let currentFilter = 'all';
+
+auth.onAuthStateChanged(user => {
+    if (user) {
+        currentUser = user;
+        document.getElementById('loginPage').style.display = 'none';
+        document.getElementById('appContainer').style.display = 'block';
+        loadData();
+    } else {
+        currentUser = null;
+        document.getElementById('loginPage').style.display = 'flex';
+        document.getElementById('appContainer').style.display = 'none';
+    }
+});
+
+async function login() {
+    const email = document.getElementById('loginEmail').value;
+    const pw = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+    try { await auth.signInWithEmailAndPassword(email, pw); }
+    catch (e) { errEl.textContent = 'E-posta veya sifre hatali!'; errEl.style.display = 'block'; }
+}
+
+async function register() {
+    const email = document.getElementById('loginEmail').value;
+    const pw = document.getElementById('loginPassword').value;
+    const errEl = document.getElementById('loginError');
+    errEl.style.display = 'none';
+    if (!email || !pw) { errEl.textContent = 'E-posta ve sifre girin, sonra Kayit Ol tiklayin.'; errEl.style.display = 'block'; return; }
+    if (pw.length < 6) { errEl.textContent = 'Sifre en az 6 karakter olmali.'; errEl.style.display = 'block'; return; }
+    try { await auth.createUserWithEmailAndPassword(email, pw); showToast('Hesap olusturuldu!', 'success'); }
+    catch (e) { errEl.textContent = e.code === 'auth/email-already-in-use' ? 'Bu e-posta zaten kayitli.' : 'Kayit hatasi: ' + e.message; errEl.style.display = 'block'; }
+}
+
+function logout() { auth.signOut(); }
+
+async function loadData() {
+    db.collection('patients').where('userId', '==', currentUser.uid).orderBy('name')
+        .onSnapshot(snap => { patients = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderPatients(); updatePatientSelect(); updateStats(); });
+    db.collection('appointments').where('userId', '==', currentUser.uid).orderBy('date')
+        .onSnapshot(snap => { appointments = snap.docs.map(d => ({ id: d.id, ...d.data() })); renderDashboard(); renderAppointments(); renderCalendar(); updateStats(); });
+}
+
+function renderDashboard() {
+    const today = new Date().toISOString().split('T')[0];
+    const todayApts = appointments.filter(a => a.date === today).sort((a, b) => a.time.localeCompare(b.time));
+    const todayEl = document.getElementById('todayAppointments');
+    if (todayApts.length === 0) { todayEl.innerHTML = '<div class="empty-state"><p>Bugun randevu yok</p></div>'; }
+    else { todayEl.innerHTML = todayApts.map(a => { const p = patients.find(p => p.id === a.patientId); return `<div class="appointment-item"><div class="apt-time">${a.time}</div><div class="apt-info"><div class="apt-name">${p ? p.name : '?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`; }).join(''); }
+    const next7 = new Date(); next7.setDate(next7.getDate() + 7); const next7Str = next7.toISOString().split('T')[0];
+    const upcoming = appointments.filter(a => a.date > today && a.date <= next7Str).sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+    const upEl = document.getElementById('upcomingAppointments');
+    if (upcoming.length === 0) { upEl.innerHTML = '<div class="empty-state"><p>Yaklasan randevu yok</p></div>'; }
+    else { upEl.innerHTML = upcoming.map(a => { const p = patients.find(p => p.id === a.patientId); return `<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br>${a.time}</div><div class="apt-info"><div class="apt-name">${p ? p.name : '?'}</div><div class="apt-type">${getTypeName(a.type)}</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`; }).join(''); }
+}
+
+function updateStats() {
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('statToday').textContent = appointments.filter(a => a.date === today).length;
+    const mon = getMonday(new Date()); const sun = new Date(mon); sun.setDate(sun.getDate() + 6);
+    document.getElementById('statWeek').textContent = appointments.filter(a => a.date >= mon.toISOString().split('T')[0] && a.date <= sun.toISOString().split('T')[0]).length;
+    document.getElementById('statPatients').textContent = patients.length;
+    document.getElementById('statNoShow').textContent = appointments.filter(a => a.date.startsWith(new Date().toISOString().slice(0, 7)) && a.status === 'gelmedi').length;
+}
+
+function renderAppointments() {
+    const search = document.getElementById('aptSearch').value.toLowerCase();
+    let filtered = appointments;
+    if (currentFilter !== 'all') filtered = filtered.filter(a => a.status === currentFilter);
+    if (search) filtered = filtered.filter(a => { const p = patients.find(p => p.id === a.patientId); return p && p.name.toLowerCase().includes(search); });
+    filtered.sort((a, b) => b.date.localeCompare(a.date) || b.time.localeCompare(a.time));
+    const tbody = document.getElementById('appointmentTableBody');
+    if (filtered.length === 0) { tbody.innerHTML = '<tr><td colspan="6" class="text-center" style="color:var(--text-muted)">Randevu bulunamadi</td></tr>'; return; }
+    tbody.innerHTML = filtered.map(a => { const p = patients.find(p => p.id === a.patientId); return `<tr><td>${formatDate(a.date)}</td><td>${a.time}</td><td>${p ? p.name : '?'}</td><td>${getTypeName(a.type)}</td><td><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></td><td><button class="btn btn-outline btn-sm" onclick="editAppointment('${a.id}')" style="margin-right:4px">Duzenle</button><button class="btn btn-danger btn-sm" onclick="deleteAppointment('${a.id}')">Sil</button></td></tr>`; }).join('');
+}
+
+function filterApt(filter, btn) { currentFilter = filter; document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); btn.classList.add('active'); renderAppointments(); }
+
+function openNewAppointmentModal() {
+    document.getElementById('aptModalTitle').textContent = 'Yeni Randevu';
+    document.getElementById('aptEditId').value = '';
+    document.getElementById('aptPatient').value = '';
+    document.getElementById('aptDate').value = new Date().toISOString().split('T')[0];
+    document.getElementById('aptTime').value = '09:00';
+    document.getElementById('aptDuration').value = '60';
+    document.getElementById('aptType').value = 'ilk-gorusme';
+    document.getElementById('aptStatus').value = 'bekliyor';
+    document.getElementById('aptNotes').value = '';
+    updatePatientSelect(); openModal('appointmentModal');
+}
+
+function editAppointment(id) {
+    const apt = appointments.find(a => a.id === id); if (!apt) return;
+    document.getElementById('aptModalTitle').textContent = 'Randevu Duzenle';
+    document.getElementById('aptEditId').value = id;
+    document.getElementById('aptPatient').value = apt.patientId;
+    document.getElementById('aptDate').value = apt.date;
+    document.getElementById('aptTime').value = apt.time;
+    document.getElementById('aptDuration').value = apt.duration;
+    document.getElementById('aptType').value = apt.type;
+    document.getElementById('aptStatus').value = apt.status;
+    document.getElementById('aptNotes').value = apt.notes || '';
+    updatePatientSelect(); openModal('appointmentModal');
+}
+
+async function saveAppointment() {
+    const patientId = document.getElementById('aptPatient').value;
+    const date = document.getElementById('aptDate').value;
+    const time = document.getElementById('aptTime').value;
+    if (!patientId || !date || !time) { showToast('Hasta, tarih ve saat zorunlu!', 'error'); return; }
+    const data = { userId: currentUser.uid, patientId, date, time, duration: document.getElementById('aptDuration').value, type: document.getElementById('aptType').value, status: document.getElementById('aptStatus').value, notes: document.getElementById('aptNotes').value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    const editId = document.getElementById('aptEditId').value;
+    try {
+        if (editId) { await db.collection('appointments').doc(editId).update(data); showToast('Randevu guncellendi!', 'success'); }
+        else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('appointments').add(data); showToast('Randevu eklendi!', 'success'); }
+        closeModal('appointmentModal');
+    } catch (e) { showToast('Hata: ' + e.message, 'error'); }
+}
+
+async function deleteAppointment(id) {
+    if (!confirm('Bu randevuyu silmek istediginize emin misiniz?')) return;
+    try { await db.collection('appointments').doc(id).delete(); showToast('Randevu silindi.', 'success'); } catch (e) { showToast('Hata: ' + e.message, 'error'); }
+}
+
+function renderPatients() {
+    const search = document.getElementById('patientSearch').value.toLowerCase();
+    let filtered = patients;
+    if (search) filtered = filtered.filter(p => p.name.toLowerCase().includes(search) || (p.phone && p.phone.includes(search)));
+    const el = document.getElementById('patientList');
+    if (filtered.length === 0) { el.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><p>Hasta bulunamadi</p></div>'; return; }
+    el.innerHTML = filtered.map(p => {
+        const aptCount = appointments.filter(a => a.patientId === p.id).length;
+        const avatarContent = p.photo ? `<img src="${p.photo}" alt="${p.name}">` : p.name.charAt(0).toUpperCase();
+        return `<div class="patient-card" onclick="showPatientDetail('${p.id}')"><div class="patient-header"><div class="patient-avatar">${avatarContent}</div><div><div class="patient-name">${p.name}</div><div class="patient-phone">${p.phone || 'Telefon yok'}</div></div></div><div class="patient-stats"><div class="patient-stat">Randevu: <strong>${aptCount}</strong></div>${p.email ? `<div class="patient-stat">${p.email}</div>` : ''}</div></div>`;
+    }).join('');
+}
+
+function openNewPatientModal() {
+    document.getElementById('patientModalTitle').textContent = 'Yeni Hasta';
+    document.getElementById('patientEditId').value = '';
+    document.getElementById('patientName').value = '';
+    document.getElementById('patientPhone').value = '';
+    document.getElementById('patientEmail').value = '';
+    document.getElementById('patientBirthdate').value = '';
+    document.getElementById('patientNotes').value = '';
+    document.getElementById('patientPhotoData').value = '';
+    document.getElementById('photoPreview').classList.add('hidden');
+    document.getElementById('photoPlaceholder').classList.remove('hidden');
+    openModal('patientModal');
+}
+
+function editPatient(id) {
+    const p = patients.find(pt => pt.id === id); if (!p) return;
+    document.getElementById('patientModalTitle').textContent = 'Hasta Duzenle';
+    document.getElementById('patientEditId').value = id;
+    document.getElementById('patientName').value = p.name;
+    document.getElementById('patientPhone').value = p.phone || '';
+    document.getElementById('patientEmail').value = p.email || '';
+    document.getElementById('patientBirthdate').value = p.birthdate || '';
+    document.getElementById('patientNotes').value = p.notes || '';
+    document.getElementById('patientPhotoData').value = p.photo || '';
+    if (p.photo) { document.getElementById('photoPreview').src = p.photo; document.getElementById('photoPreview').classList.remove('hidden'); document.getElementById('photoPlaceholder').classList.add('hidden'); }
+    else { document.getElementById('photoPreview').classList.add('hidden'); document.getElementById('photoPlaceholder').classList.remove('hidden'); }
+    closeModal('patientDetailModal'); openModal('patientModal');
+}
+
+function handlePhotoSelect(event) {
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxSize = 200; let w = img.width, h = img.height;
+            if (w > h) { h = h * maxSize / w; w = maxSize; } else { w = w * maxSize / h; h = maxSize; }
+            canvas.width = w; canvas.height = h;
+            canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+            const compressed = canvas.toDataURL('image/jpeg', 0.7);
+            document.getElementById('patientPhotoData').value = compressed;
+            document.getElementById('photoPreview').src = compressed;
+            document.getElementById('photoPreview').classList.remove('hidden');
+            document.getElementById('photoPlaceholder').classList.add('hidden');
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+async function savePatient() {
+    const name = document.getElementById('patientName').value.trim();
+    if (!name) { showToast('Hasta adi zorunlu!', 'error'); return; }
+    const data = { userId: currentUser.uid, name, phone: document.getElementById('patientPhone').value.trim(), email: document.getElementById('patientEmail').value.trim(), birthdate: document.getElementById('patientBirthdate').value, notes: document.getElementById('patientNotes').value.trim(), photo: document.getElementById('patientPhotoData').value, updatedAt: firebase.firestore.FieldValue.serverTimestamp() };
+    const editId = document.getElementById('patientEditId').value;
+    try {
+        if (editId) { await db.collection('patients').doc(editId).update(data); showToast('Hasta guncellendi!', 'success'); }
+        else { data.createdAt = firebase.firestore.FieldValue.serverTimestamp(); await db.collection('patients').add(data); showToast('Hasta eklendi!', 'success'); }
+        closeModal('patientModal');
+    } catch (e) { showToast('Hata: ' + e.message, 'error'); }
+}
+
+async function deletePatient(id) {
+    if (!confirm('Bu hastayi silmek istediginize emin misiniz?')) return;
+    try {
+        const aptSnap = await db.collection('appointments').where('patientId', '==', id).get();
+        const batch = db.batch(); aptSnap.docs.forEach(doc => batch.delete(doc.ref)); batch.delete(db.collection('patients').doc(id));
+        await batch.commit(); closeModal('patientDetailModal'); showToast('Hasta silindi.', 'success');
+    } catch (e) { showToast('Hata: ' + e.message, 'error'); }
+}
+
+function showPatientDetail(id) {
+    const p = patients.find(pt => pt.id === id); if (!p) return;
+    const patientApts = appointments.filter(a => a.patientId === id).sort((a, b) => b.date.localeCompare(a.date));
+    document.getElementById('patientDetailContent').innerHTML = `
+        <div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px">${p.photo ? `<img src="${p.photo}" alt="${p.name}">` : p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><p style="color:var(--text-muted);font-size:13px">${p.phone || ''} ${p.email ? '| ' + p.email : ''}</p>${p.birthdate ? `<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>` : ''}</div>
+        ${p.notes ? `<div class="card"><div class="card-title">Notlar</div><p style="font-size:14px;color:var(--text-muted)">${p.notes}</p></div>` : ''}
+        <div class="card"><div class="card-title">Randevu Gecmisi (${patientApts.length})</div>${patientApts.length === 0 ? '<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>' : patientApts.map(a => `<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br>${a.time}</div><div class="apt-info"><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div>
+        <div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-primary btn-sm" onclick="editPatient('${id}')">Duzenle</button></div>`;
+    openModal('patientDetailModal');
+}
+
+function updatePatientSelect() {
+    const select = document.getElementById('aptPatient'); const cv = select.value;
+    select.innerHTML = '<option value="">Hasta secin...</option>' + patients.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    select.value = cv;
+}
+
+function renderCalendar() {
+    const calEl = document.getElementById('calendar');
+    const evts = appointments.map(a => { const p = patients.find(p => p.id === a.patientId); return { id: a.id, title: `${a.time} ${p ? p.name : '?'}`, start: a.date, backgroundColor: a.status === 'iptal' ? '#888' : a.status === 'gelmedi' ? '#FF6B6B' : a.status === 'geldi' ? '#4ECB71' : '#6C63FF', borderColor: 'transparent' }; });
+    if (calendarInstance) { calendarInstance.removeAllEvents(); calendarInstance.addEventSource(evts); return; }
+    calendarInstance = new FullCalendar.Calendar(calEl, {
+        initialView: 'dayGridMonth', locale: 'tr',
+        headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' },
+        buttonText: { today: 'Bugun', month: 'Ay', week: 'Hafta', day: 'Gun' },
+        height: 'auto', events: evts,
+        dateClick: function(info) { openNewAppointmentModal(); document.getElementById('aptDate').value = info.dateStr; },
+        eventClick: function(info) { editAppointment(info.event.id); }
+    });
+    calendarInstance.render();
+}
+
+function exportWeeklyExcel() {
+    const monday = getMonday(new Date()); const sunday = new Date(monday); sunday.setDate(sunday.getDate() + 6);
+    const mondayStr = monday.toISOString().split('T')[0]; const sundayStr = sunday.toISOString().split('T')[0];
+    const weekApts = appointments.filter(a => a.date >= mondayStr && a.date <= sundayStr).sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
+    if (weekApts.length === 0) { showToast('Bu hafta randevu yok!', 'error'); return; }
+    const data = weekApts.map(a => { const p = patients.find(p => p.id === a.patientId); return { 'Tarih': formatDate(a.date), 'Gun': getDayName(a.date), 'Saat': a.time, 'Hasta': p ? p.name : '?', 'Tur': getTypeName(a.type), 'Sure (dk)': a.duration, 'Durum': getStatusName(a.status), 'Notlar': a.notes || '' }; });
+    const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Haftalik Randevular');
+    ws['!cols'] = [{wch:12},{wch:12},{wch:8},{wch:20},{wch:15},{wch:10},{wch:10},{wch:30}];
+    XLSX.writeFile(wb, `randevular_${mondayStr}_${sundayStr}.xlsx`); showToast('Excel indirildi!', 'success');
+}
+
+function showPage(page) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-' + page).classList.add('active');
+    document.querySelectorAll('.nav-menu li').forEach(li => li.classList.remove('active'));
+    event.currentTarget.classList.add('active');
+    if (page === 'calendar' && calendarInstance) setTimeout(() => calendarInstance.updateSize(), 100);
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('overlay').classList.remove('active');
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('overlay').classList.toggle('active'); }
+function openModal(id) { document.getElementById(id).classList.add('active'); }
+function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+function showToast(msg, type = 'success') { const c = document.getElementById('toastContainer'); const t = document.createElement('div'); t.className = `toast toast-${type}`; t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3000); }
+function getTypeName(type) { return { 'ilk-gorusme': 'Ilk Gorusme', 'kontrol': 'Kontrol', 'olcum': 'Olcum', 'online': 'Online' }[type] || type; }
+function getStatusName(status) { return { 'bekliyor': 'Bekliyor', 'geldi': 'Geldi', 'gelmedi': 'Gelmedi', 'iptal': 'Iptal' }[status] || status; }
+function formatDate(dateStr) { const d = new Date(dateStr + 'T00:00:00'); return d.toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric' }); }
+function getDayName(dateStr) { const d = new Date(dateStr + 'T00:00:00'); return d.toLocaleDateString('tr-TR', { weekday: 'long' }); }
+function getMonday(d) { d = new Date(d); const day = d.getDay(); const diff = d.getDate() - day + (day === 0 ? -6 : 1); return new Date(d.setDate(diff)); }
+</script>
+</body>
+</html>
