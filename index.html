@@ -11,28 +11,32 @@
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.9/index.global.min.css" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
-        :root{--primary:#6C63FF;--primary-light:#8B85FF;--primary-dark:#5A52E0;--bg:#0a0a16;--bg-card:rgba(22,22,42,0.8);--bg-input:#1e1e38;--text:#F0F0F5;--text-muted:#8888AA;--success:#4ECB71;--danger:#FF6B6B;--warning:#FFB84D;--info:#4DABF7;--border:rgba(108,99,255,0.15);--shadow:0 8px 32px rgba(0,0,0,0.3)}
-        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse at 20% 50%,rgba(108,99,255,0.08) 0%,transparent 50%),radial-gradient(ellipse at 80% 20%,rgba(78,203,113,0.05) 0%,transparent 50%)}
+        :root{--primary:#6C63FF;--primary-light:#8B85FF;--primary-dark:#5A52E0;--bg:#0a0a16;--bg-card:rgba(22,22,42,0.85);--bg-input:#1a1a34;--text:#F0F0F5;--text-muted:#8888AA;--success:#4ECB71;--danger:#FF6B6B;--warning:#FFB84D;--info:#4DABF7;--border:rgba(108,99,255,0.12);--el-1:0 2px 8px rgba(0,0,0,0.2),0 1px 3px rgba(0,0,0,0.15);--el-2:0 6px 20px rgba(0,0,0,0.25),0 2px 6px rgba(0,0,0,0.2);--el-3:0 16px 48px rgba(0,0,0,0.35),0 4px 12px rgba(0,0,0,0.25);--el-glow:0 0 30px rgba(108,99,255,0.15);--ease:cubic-bezier(0.4,0,0.2,1)}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse at 15% 50%,rgba(108,99,255,0.07) 0%,transparent 50%),radial-gradient(ellipse at 85% 15%,rgba(78,203,113,0.04) 0%,transparent 40%),radial-gradient(ellipse at 50% 100%,rgba(108,99,255,0.04) 0%,transparent 40%)}
         .login-container{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;background-image:radial-gradient(ellipse at 50% 50%,rgba(108,99,255,0.12) 0%,transparent 60%)}
-        .login-box{background:var(--bg-card);backdrop-filter:blur(20px);border-radius:24px;padding:50px 40px;width:100%;max-width:420px;box-shadow:var(--shadow);text-align:center;border:1px solid var(--border)}
+        .login-box{background:var(--bg-card);backdrop-filter:blur(24px);border-radius:28px;padding:50px 40px;width:100%;max-width:420px;box-shadow:var(--el-3),var(--el-glow);text-align:center;border:1px solid var(--border)}
         .login-box h1{font-size:28px;margin-bottom:8px;background:linear-gradient(135deg,var(--primary),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
         .login-box p{color:var(--text-muted);margin-bottom:30px;font-size:14px}
         .form-group{margin-bottom:16px;text-align:left}
         .form-group label{display:block;font-size:13px;color:var(--text-muted);margin-bottom:6px;font-weight:500}
-        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:inherit;transition:all 0.3s}
-        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,99,255,0.15)}
+        .form-group input,.form-group select,.form-group textarea{width:100%;padding:12px 16px;background:var(--bg-input);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:14px;font-family:inherit;transition:all 0.3s var(--ease);box-shadow:var(--el-1) inset,0 0 0 0 transparent}
+        .form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,99,255,0.15),0 0 20px rgba(108,99,255,0.08)}
         .form-group textarea{resize:vertical;min-height:80px}
-        .btn{padding:12px 24px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s;font-family:inherit;display:inline-flex;align-items:center;gap:8px}
-        .btn-primary{background:linear-gradient(135deg,var(--primary),#a78bfa);color:white;width:100%;justify-content:center}
-        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(108,99,255,0.4)}
-        .btn-success{background:linear-gradient(135deg,#4ECB71,#2ecc71);color:#111}
-        .btn-danger{background:linear-gradient(135deg,#FF6B6B,#ee5a24);color:white}
-        .btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
-        .btn-outline:hover{border-color:var(--primary);color:var(--primary);background:rgba(108,99,255,0.05)}
+        .btn{padding:12px 24px;border:none;border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.3s var(--ease);font-family:inherit;display:inline-flex;align-items:center;gap:8px;position:relative;overflow:hidden}
+        .btn::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,0.1),transparent);pointer-events:none}
+        .btn-primary{background:linear-gradient(135deg,var(--primary),#a78bfa);color:white;width:100%;justify-content:center;box-shadow:0 4px 15px rgba(108,99,255,0.3)}
+        .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(108,99,255,0.45)}
+        .btn-success{background:linear-gradient(135deg,#4ECB71,#2ecc71);color:#111;box-shadow:0 4px 15px rgba(78,203,113,0.3)}
+        .btn-success:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(78,203,113,0.4)}
+        .btn-danger{background:linear-gradient(135deg,#FF6B6B,#ee5a24);color:white;box-shadow:0 4px 15px rgba(255,107,107,0.3)}
+        .btn-danger:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(255,107,107,0.4)}
+        .btn-outline{background:rgba(255,255,255,0.03);border:1px solid var(--border);color:var(--text);box-shadow:var(--el-1)}
+        .btn-outline::after{display:none}
+        .btn-outline:hover{border-color:var(--primary);color:var(--primary);background:rgba(108,99,255,0.06);box-shadow:var(--el-2)}
         .btn-sm{padding:8px 16px;font-size:12px;border-radius:10px}
         .error-msg{color:var(--danger);font-size:13px;margin-top:10px;display:none}
         .app-container{display:none}
-        .sidebar{position:fixed;left:0;top:0;width:250px;height:100vh;background:rgba(14,14,28,0.95);backdrop-filter:blur(20px);border-right:1px solid var(--border);padding:24px 0;z-index:100;transition:transform 0.3s}
+        .sidebar{position:fixed;left:0;top:0;width:250px;height:100vh;background:rgba(12,12,26,0.97);backdrop-filter:blur(24px);border-right:1px solid var(--border);padding:24px 0;z-index:100;transition:transform 0.3s var(--ease);box-shadow:4px 0 24px rgba(0,0,0,0.3)}
         .sidebar-logo{padding:0 24px;margin-bottom:36px}
         .sidebar-logo h2{font-size:20px;background:linear-gradient(135deg,var(--primary),#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;font-weight:700}
         .sidebar-logo span{font-size:12px;color:var(--text-muted);display:block;margin-top:4px}
@@ -48,8 +52,8 @@
         .hamburger{display:none;background:none;border:none;color:var(--text);font-size:24px;cursor:pointer}
         /* GRADIENT STAT CARDS */
         .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px}
-        .stat-card{border-radius:18px;padding:22px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.06);transition:transform 0.3s}
-        .stat-card:hover{transform:translateY(-4px);cursor:pointer;box-shadow:0 12px 30px rgba(0,0,0,0.3)}
+        .stat-card{border-radius:18px;padding:22px;position:relative;overflow:hidden;border:1px solid rgba(255,255,255,0.06);transition:all 0.3s var(--ease);box-shadow:var(--el-1)}
+        .stat-card:hover{transform:translateY(-4px);cursor:pointer;box-shadow:var(--el-2)}
         .stat-card:nth-child(1){background:linear-gradient(135deg,rgba(108,99,255,0.2),rgba(108,99,255,0.08));border-color:rgba(108,99,255,0.2)}
         .stat-card:nth-child(1) .stat-value{color:#a78bfa}
         .stat-card:nth-child(2){background:linear-gradient(135deg,rgba(77,171,247,0.2),rgba(77,171,247,0.08));border-color:rgba(77,171,247,0.2)}
@@ -62,12 +66,12 @@
         .stat-card .stat-value{font-size:32px;font-weight:700}
         .stat-card .stat-icon{font-size:28px;position:absolute;top:18px;right:18px;opacity:0.4}
         /* CARDS */
-        .card{background:var(--bg-card);backdrop-filter:blur(12px);border-radius:18px;padding:24px;border:1px solid var(--border);margin-bottom:20px;transition:all 0.3s}
-        .card:hover{border-color:rgba(108,99,255,0.25)}
+        .card{background:var(--bg-card);backdrop-filter:blur(16px);border-radius:18px;padding:24px;border:1px solid var(--border);margin-bottom:20px;transition:all 0.3s var(--ease);box-shadow:var(--el-1)}
+        .card:hover{border-color:rgba(108,99,255,0.2);box-shadow:var(--el-2)}
         .card-title{font-size:16px;font-weight:600;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;color:var(--text)}
         /* APPOINTMENT ITEMS */
-        .appointment-item{display:flex;align-items:center;padding:14px 16px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,rgba(108,99,255,0.06),rgba(108,99,255,0.02));border:1px solid var(--border);gap:14px;transition:all 0.2s;cursor:pointer}
-        .appointment-item:hover{transform:translateX(6px);border-color:rgba(108,99,255,0.3);background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04))}
+        .appointment-item{display:flex;align-items:center;padding:14px 16px;border-radius:14px;margin-bottom:10px;background:linear-gradient(135deg,rgba(108,99,255,0.06),rgba(108,99,255,0.02));border:1px solid var(--border);gap:14px;transition:all 0.25s var(--ease);cursor:pointer;box-shadow:var(--el-1)}
+        .appointment-item:hover{transform:translateX(6px) translateY(-1px);border-color:rgba(108,99,255,0.3);background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));box-shadow:var(--el-2)}
         .apt-time{font-size:14px;font-weight:700;color:var(--primary-light);min-width:70px;line-height:1.4}
         .apt-info{flex:1}
         .apt-info .apt-name{font-size:14px;font-weight:600;margin-bottom:2px}
@@ -125,17 +129,17 @@
         /* MODAL */
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9000;justify-content:center;align-items:center;padding:20px}
         .modal-overlay.active{display:flex}
-        .modal{background:rgba(22,22,42,0.98);backdrop-filter:blur(20px);border-radius:20px;padding:32px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 25px 60px rgba(0,0,0,0.5);border:1px solid var(--border)}
+        .modal{background:rgba(20,20,40,0.97);backdrop-filter:blur(30px);border-radius:24px;padding:32px;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:var(--el-3),0 0 60px rgba(108,99,255,0.08);border:1px solid rgba(108,99,255,0.15)}
         .modal-title{font-size:20px;font-weight:700;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center}
         .modal-close{background:none;border:none;color:var(--text-muted);font-size:28px;cursor:pointer;transition:color 0.2s}
         .modal-close:hover{color:var(--danger)}
         .modal-actions{display:flex;gap:10px;margin-top:24px;justify-content:flex-end}
         /* PATIENT */
         .patient-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
-        .patient-card{background:var(--bg-card);backdrop-filter:blur(12px);border-radius:18px;padding:22px;border:1px solid var(--border);cursor:pointer;transition:all 0.3s}
-        .patient-card:hover{border-color:rgba(108,99,255,0.3);transform:translateY(-4px);box-shadow:0 12px 30px rgba(108,99,255,0.1)}
+        .patient-card{background:var(--bg-card);backdrop-filter:blur(16px);border-radius:18px;padding:22px;border:1px solid var(--border);cursor:pointer;transition:all 0.3s var(--ease);box-shadow:var(--el-1)}
+        .patient-card:hover{border-color:rgba(108,99,255,0.25);transform:translateY(-4px);box-shadow:var(--el-2),0 0 30px rgba(108,99,255,0.06)}
         .patient-header{display:flex;align-items:center;gap:14px;margin-bottom:12px}
-        .patient-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:white;overflow:hidden;flex-shrink:0}
+        .patient-avatar{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--primary),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;color:white;overflow:hidden;flex-shrink:0;box-shadow:0 4px 12px rgba(108,99,255,0.3)}
         .patient-avatar img{width:100%;height:100%;object-fit:cover}
         .patient-name{font-size:16px;font-weight:600}
         .patient-phone{font-size:13px;color:var(--text-muted)}
@@ -152,12 +156,12 @@
         .search-box input:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,99,255,0.12)}
         .search-box svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text-muted);width:18px;height:18px}
         .filter-bar{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-        .filter-btn{padding:7px 16px;border-radius:24px;font-size:12px;border:1px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all 0.2s}
-        .filter-btn:hover{border-color:var(--primary);color:var(--primary)}
-        .filter-btn.active{background:linear-gradient(135deg,var(--primary),#a78bfa);border-color:transparent;color:white}
+        .filter-btn{padding:7px 16px;border-radius:24px;font-size:12px;border:1px solid var(--border);background:rgba(255,255,255,0.02);color:var(--text-muted);cursor:pointer;font-family:inherit;transition:all 0.25s var(--ease);box-shadow:var(--el-1)}
+        .filter-btn:hover{border-color:var(--primary);color:var(--primary);box-shadow:var(--el-2);transform:translateY(-1px)}
+        .filter-btn.active{background:linear-gradient(135deg,var(--primary),#a78bfa);border-color:transparent;color:white;box-shadow:0 4px 15px rgba(108,99,255,0.35)}
         /* TOAST */
         .toast-container{position:fixed;top:20px;right:20px;z-index:9500}
-        .toast{padding:14px 20px;border-radius:14px;margin-bottom:8px;font-size:14px;animation:slideIn 0.3s ease;display:flex;align-items:center;gap:10px;box-shadow:0 8px 24px rgba(0,0,0,0.3)}
+        .toast{padding:14px 20px;border-radius:14px;margin-bottom:8px;font-size:14px;animation:slideIn 0.3s var(--ease);display:flex;align-items:center;gap:10px;box-shadow:var(--el-3)}
         .toast-success{background:linear-gradient(135deg,#4ECB71,#2ecc71);color:#111}
         .toast-error{background:linear-gradient(135deg,#FF6B6B,#ee5a24);color:white}
         @keyframes slideIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}
@@ -267,22 +271,36 @@
         .crop-circle:active{cursor:grabbing}
         .crop-circle img{position:absolute;user-select:none;-webkit-user-drag:none;min-width:100%;min-height:100%}
         /* Day schedule in appointment modal */
-        .day-schedule{background:var(--bg-input);border-radius:12px;padding:12px;margin-bottom:16px;max-height:150px;overflow-y:auto}
-        .day-schedule-title{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
-        .day-schedule-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;font-size:12px;background:rgba(108,99,255,0.06)}
+        .day-schedule{background:var(--bg-input);border-radius:14px;padding:14px;margin-bottom:16px;max-height:180px;overflow-y:auto;border:1px solid var(--border);box-shadow:var(--el-1) inset}
+        .day-schedule-title{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+        .day-schedule-title::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--primary)}
+        .day-schedule-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:10px;margin-bottom:4px;font-size:12px;background:rgba(108,99,255,0.06);border:1px solid rgba(108,99,255,0.08);transition:all 0.2s}
+        .day-schedule-item:hover{background:rgba(108,99,255,0.1)}
         .day-schedule-item .ds-time{font-weight:700;color:var(--primary-light);min-width:45px}
         .day-schedule-item .ds-name{flex:1;font-weight:500}
         .day-schedule-item .ds-dur{color:var(--text-muted);font-size:11px}
-        .day-schedule-empty{font-size:12px;color:var(--success);font-weight:500}
+        .day-schedule-empty{font-size:12px;color:var(--success);font-weight:500;display:flex;align-items:center;gap:6px}
+        .day-schedule-empty::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success)}
+        /* Mini week view */
+        .mini-week{display:flex;gap:4px;margin-bottom:12px}
+        .mini-week-day{flex:1;text-align:center;padding:8px 2px;border-radius:10px;cursor:pointer;transition:all 0.2s var(--ease);border:1px solid transparent;background:rgba(255,255,255,0.02)}
+        .mini-week-day:hover{background:rgba(108,99,255,0.08);border-color:var(--border)}
+        .mini-week-day.mw-active{background:rgba(108,99,255,0.15);border-color:var(--primary)}
+        .mini-week-day.mw-today{border-color:var(--warning)}
+        .mini-week-day .mw-name{font-size:9px;color:var(--text-muted);text-transform:uppercase;font-weight:600;letter-spacing:0.5px}
+        .mini-week-day .mw-num{font-size:16px;font-weight:700;color:var(--text);margin:4px 0}
+        .mini-week-day .mw-count{font-size:9px;font-weight:600;color:var(--primary-light)}
+        .mini-week-day .mw-count.mw-empty{color:var(--text-muted);opacity:0.4}
         /* Grouped appointment list */
-        .apt-day-group{margin-bottom:16px;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px}
+        .apt-day-group{margin-bottom:16px;padding:18px;background:var(--bg-card);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:18px;box-shadow:var(--el-1);transition:all 0.3s var(--ease)}
+        .apt-day-group:hover{box-shadow:var(--el-2)}
         .apt-day-header{display:inline-flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 16px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));border-radius:12px;border-left:3px solid var(--primary)}
         .apt-day-header .adh-date{font-size:15px;font-weight:700;color:var(--text);flex:1}
         .apt-day-header .adh-count{font-size:12px;color:var(--primary-light);font-weight:600;background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:10px}
         .apt-day-header .adh-day{font-size:12px;color:var(--text-muted);font-weight:500}
         .apt-day-empty{padding:12px 16px;color:var(--text-muted);font-size:13px;font-style:italic}
-        .apt-list-item{display:flex;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:6px;background:var(--bg-input);gap:12px;cursor:pointer;transition:all 0.2s;border:1px solid transparent}
-        .apt-list-item:hover{border-color:rgba(108,99,255,0.2);background:rgba(108,99,255,0.06);transform:translateX(4px)}
+        .apt-list-item{display:flex;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:6px;background:var(--bg-input);gap:12px;cursor:pointer;transition:all 0.25s var(--ease);border:1px solid transparent;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
+        .apt-list-item:hover{border-color:rgba(108,99,255,0.2);background:rgba(108,99,255,0.06);transform:translateX(4px) translateY(-1px);box-shadow:var(--el-1)}
         .apt-list-time{font-size:15px;font-weight:700;color:var(--primary-light);min-width:55px}
         .apt-list-info{flex:1;min-width:0}
         .apt-list-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -586,11 +604,29 @@ function showDaySchedule(){
     const date=document.getElementById('aptDate').value;
     const panel=document.getElementById('daySchedulePanel');
     if(!date){panel.innerHTML='';return}
-    const dayApts=appointments.filter(a=>a.date===date).sort((a,b)=>a.time.localeCompare(b.time));
     const editId=document.getElementById('aptEditId').value;
-    const filtered=dayApts.filter(a=>a.id!==editId);
-    if(!filtered.length){panel.innerHTML=`<div class="day-schedule"><div class="day-schedule-empty">Bu gun bos - randevu yok</div></div>`;return}
-    panel.innerHTML=`<div class="day-schedule"><div class="day-schedule-title">Bu gunun programi (${filtered.length} randevu)</div>${filtered.map(a=>{const p=patients.find(x=>x.id===a.patientId);return`<div class="day-schedule-item"><span class="ds-time">${a.time}</span><span class="ds-name">${p?p.name:'?'}</span><span class="ds-dur">${a.duration} dk</span></div>`}).join('')}</div>`;
+    const today=new Date().toISOString().split('T')[0];
+    // Mini week view
+    const selDate=new Date(date+'T00:00:00');
+    const dayOfWeek=selDate.getDay();
+    const monday=new Date(selDate);monday.setDate(selDate.getDate()-dayOfWeek+(dayOfWeek===0?-6:1));
+    const dayNames=['PZT','SAL','CAR','PER','CUM','CMT','PAZ'];
+    let weekHtml='<div class="mini-week">';
+    for(let i=0;i<7;i++){
+        const d=new Date(monday);d.setDate(monday.getDate()+i);
+        const ds=d.toISOString().split('T')[0];
+        const cnt=appointments.filter(a=>a.date===ds&&a.id!==editId).length;
+        const isActive=ds===date;
+        const isToday=ds===today;
+        weekHtml+=`<div class="mini-week-day ${isActive?'mw-active':''} ${isToday?'mw-today':''}" onclick="document.getElementById('aptDate').value='${ds}';showDaySchedule()"><div class="mw-name">${dayNames[i]}</div><div class="mw-num">${d.getDate()}</div><div class="mw-count ${cnt?'':'mw-empty'}">${cnt?cnt+' randevu':'-'}</div></div>`;
+    }
+    weekHtml+='</div>';
+    // Day schedule
+    const dayApts=appointments.filter(a=>a.date===date&&a.id!==editId).sort((a,b)=>a.time.localeCompare(b.time));
+    let schedHtml='';
+    if(!dayApts.length){schedHtml=`<div class="day-schedule-empty">Bu gun bos - randevu yok</div>`}
+    else{schedHtml=`<div class="day-schedule-title">Secili gunun programi (${dayApts.length} randevu)</div>${dayApts.map(a=>{const p=patients.find(x=>x.id===a.patientId);return`<div class="day-schedule-item"><span class="ds-time">${a.time}</span><span class="ds-name">${p?p.name:'?'}</span><span class="ds-dur">${a.duration} dk</span></div>`}).join('')}`}
+    panel.innerHTML=weekHtml+`<div class="day-schedule">${schedHtml}</div>`;
 }
 function openNewAppointmentModal(){
     document.getElementById('aptModalTitle').textContent='Yeni Randevu';document.getElementById('aptEditId').value='';document.getElementById('aptPatient').value='';document.getElementById('aptPatientSearch').value='';
