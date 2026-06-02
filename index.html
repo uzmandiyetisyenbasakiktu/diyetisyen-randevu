@@ -12,6 +12,19 @@
     <style>
         *{margin:0;padding:0;box-sizing:border-box}
         :root{--primary:#6C63FF;--primary-light:#8B85FF;--primary-dark:#5A52E0;--bg:#0a0a16;--bg-card:rgba(22,22,42,0.85);--bg-input:#1a1a34;--text:#F0F0F5;--text-muted:#8888AA;--success:#4ECB71;--danger:#FF6B6B;--warning:#FFB84D;--info:#4DABF7;--border:rgba(108,99,255,0.12);--el-1:0 2px 8px rgba(0,0,0,0.2),0 1px 3px rgba(0,0,0,0.15);--el-2:0 6px 20px rgba(0,0,0,0.25),0 2px 6px rgba(0,0,0,0.2);--el-3:0 16px 48px rgba(0,0,0,0.35),0 4px 12px rgba(0,0,0,0.25);--el-glow:0 0 30px rgba(108,99,255,0.15);--ease:cubic-bezier(0.4,0,0.2,1)}
+        [data-theme="light"]{--bg:#f0f2f5;--bg-card:rgba(255,255,255,0.9);--bg-input:#ffffff;--text:#1a1a2e;--text-muted:#666680;--border:rgba(108,99,255,0.12);--el-1:0 2px 8px rgba(0,0,0,0.06),0 1px 3px rgba(0,0,0,0.04);--el-2:0 6px 20px rgba(0,0,0,0.08),0 2px 6px rgba(0,0,0,0.05);--el-3:0 16px 48px rgba(0,0,0,0.12),0 4px 12px rgba(0,0,0,0.06);--el-glow:0 0 30px rgba(108,99,255,0.08)}
+        [data-theme="light"] body{background-image:radial-gradient(ellipse at 15% 50%,rgba(108,99,255,0.05) 0%,transparent 50%),radial-gradient(ellipse at 85% 15%,rgba(78,203,113,0.03) 0%,transparent 40%)}
+        [data-theme="light"] .sidebar{background:rgba(255,255,255,0.95);border-right-color:rgba(0,0,0,0.06)}
+        [data-theme="light"] .login-container{background-image:radial-gradient(ellipse at 50% 50%,rgba(108,99,255,0.08) 0%,transparent 60%)}
+        [data-theme="light"] .modal{background:rgba(255,255,255,0.97)}
+        [data-theme="light"] .fc .fc-col-header{background:rgba(108,99,255,0.04)}
+        [data-theme="light"] .fc .fc-daygrid-day-number{color:var(--text)}
+        [data-theme="light"] .stat-card .stat-label{color:var(--text-muted)}
+        [data-theme="light"] .dropdown-list{background:rgba(255,255,255,0.98)}
+        [data-theme="light"] .apt-day-header{background:linear-gradient(135deg,rgba(108,99,255,0.06),rgba(108,99,255,0.02))}
+        [data-theme="light"] .appointment-item{background:linear-gradient(135deg,rgba(108,99,255,0.04),rgba(108,99,255,0.01))}
+        [data-theme="light"] .day-schedule{box-shadow:var(--el-1)}
+        [data-theme="light"] .crop-circle{background:#eee}
         body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;background-image:radial-gradient(ellipse at 15% 50%,rgba(108,99,255,0.07) 0%,transparent 50%),radial-gradient(ellipse at 85% 15%,rgba(78,203,113,0.04) 0%,transparent 40%),radial-gradient(ellipse at 50% 100%,rgba(108,99,255,0.04) 0%,transparent 40%)}
         .login-container{display:flex;justify-content:center;align-items:center;min-height:100vh;padding:20px;background-image:radial-gradient(ellipse at 50% 50%,rgba(108,99,255,0.12) 0%,transparent 60%)}
         .login-box{background:var(--bg-card);backdrop-filter:blur(24px);border-radius:28px;padding:50px 40px;width:100%;max-width:420px;box-shadow:var(--el-3),var(--el-glow);text-align:center;border:1px solid var(--border)}
@@ -282,7 +295,9 @@
         .day-schedule-empty{font-size:12px;color:var(--success);font-weight:500;display:flex;align-items:center;gap:6px}
         .day-schedule-empty::before{content:'';display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--success)}
         /* Mini week view */
-        .mini-week{display:flex;gap:4px;margin-bottom:12px}
+        .mw-arrow{background:rgba(108,99,255,0.1);border:1px solid var(--border);color:var(--primary-light);width:28px;height:28px;border-radius:8px;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all 0.2s var(--ease);flex-shrink:0}
+        .mw-arrow:hover{background:rgba(108,99,255,0.25);border-color:var(--primary)}
+        .mini-week{display:flex;gap:4px;flex:1}
         .mini-week-day{flex:1;text-align:center;padding:8px 2px;border-radius:10px;cursor:pointer;transition:all 0.2s var(--ease);border:1px solid transparent;background:rgba(255,255,255,0.02)}
         .mini-week-day:hover{background:rgba(108,99,255,0.08);border-color:var(--border)}
         .mini-week-day.mw-active{background:rgba(108,99,255,0.15);border-color:var(--primary)}
@@ -291,6 +306,28 @@
         .mini-week-day .mw-num{font-size:16px;font-weight:700;color:var(--text);margin:4px 0}
         .mini-week-day .mw-count{font-size:9px;font-weight:600;color:var(--primary-light)}
         .mini-week-day .mw-count.mw-empty{color:var(--text-muted);opacity:0.4}
+        /* PROFILE PAGE */
+        .profile-top{display:grid;grid-template-columns:300px 1fr;gap:20px;margin-bottom:20px}
+        .profile-sidebar{text-align:center}
+        .profile-avatar{width:120px;height:120px;border-radius:24px;background:linear-gradient(135deg,var(--primary),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:48px;font-weight:700;color:white;overflow:hidden;margin:0 auto 16px;box-shadow:0 8px 24px rgba(108,99,255,0.3)}
+        .profile-avatar img{width:100%;height:100%;object-fit:cover}
+        .profile-name{font-size:22px;font-weight:700;margin-bottom:4px}
+        .profile-contact{font-size:13px;color:var(--text-muted);margin-bottom:4px}
+        .profile-info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}
+        .profile-info-card{background:var(--bg-input);border-radius:14px;padding:16px;text-align:center;border:1px solid var(--border);transition:all 0.2s var(--ease)}
+        .profile-info-card:hover{border-color:rgba(108,99,255,0.2);box-shadow:var(--el-1)}
+        .profile-info-card .pic-icon{font-size:24px;margin-bottom:8px;opacity:0.7}
+        .profile-info-card .pic-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;font-weight:600;margin-bottom:4px}
+        .profile-info-card .pic-value{font-size:13px;font-weight:600;color:var(--text);word-break:break-word}
+        .profile-info-card .pic-value.pic-empty{color:var(--text-muted);font-style:italic;font-weight:400}
+        .profile-tabs{display:flex;gap:4px;margin-bottom:20px;background:var(--bg-input);border-radius:14px;padding:4px;box-shadow:var(--el-1)}
+        .profile-tab{flex:1;padding:12px;border:none;background:transparent;color:var(--text-muted);cursor:pointer;border-radius:12px;font-family:inherit;font-size:13px;font-weight:600;transition:all 0.25s var(--ease)}
+        .profile-tab.active{background:linear-gradient(135deg,var(--primary),#a78bfa);color:white;box-shadow:0 4px 12px rgba(108,99,255,0.3)}
+        .profile-tab:hover:not(.active){color:var(--text);background:rgba(108,99,255,0.05)}
+        .profile-tab-content{display:none}
+        .profile-tab-content.active{display:block}
+        @media(max-width:768px){.profile-top{grid-template-columns:1fr}.profile-info-grid{grid-template-columns:1fr 1fr}}
+        @media(max-width:420px){.profile-info-grid{grid-template-columns:1fr}}
         /* Grouped appointment list */
         .apt-day-group{margin-bottom:16px;padding:18px;background:var(--bg-card);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:18px;box-shadow:var(--el-1);transition:all 0.3s var(--ease)}
         .apt-day-group:hover{box-shadow:var(--el-2)}
@@ -343,6 +380,7 @@
             <li onclick="showPage('appointments')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>Randevular</li>
             <li onclick="showPage('patients')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Hastalar</li>
             <li onclick="showPage('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.68 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.68a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>Ayarlar</li>
+            <li onclick="toggleTheme()" id="themeToggleBtn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg><span id="themeLabel">Acik Tema</span></li>
             <li onclick="logout()" style="margin-top:auto;color:var(--danger)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Cikis Yap</li>
         </ul>
     </nav>
@@ -377,6 +415,10 @@
             <div class="filter-bar" id="patientFilterBar"></div>
             <div id="patientList" class="patient-grid"></div>
         </div>
+        <div id="page-profile" class="page">
+            <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><button class="btn btn-outline btn-sm" onclick="showPage('patients');document.querySelector('.nav-menu li:nth-child(4)').classList.add('active')">&#9664; Hastalar</button><h1 id="profilePageTitle">Hasta Profili</h1></div><div class="header-actions" id="profileActions"></div></div>
+            <div id="profileContent"></div>
+        </div>
         <div id="page-settings" class="page">
             <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><h1>Ayarlar</h1></div></div>
             <div class="card">
@@ -406,11 +448,20 @@
     <div class="photo-upload" onclick="document.getElementById('photoInput').click()"><svg id="photoPlaceholder" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg><img id="photoPreview" class="hidden" alt="Foto"></div>
     <input type="file" id="photoInput" accept="image/*" class="hidden" onchange="handlePhotoSelect(event)">
     <div class="form-group"><label>Ad Soyad *</label><input type="text" id="patientName" placeholder="Hasta adi"></div>
-    <div class="form-group"><label>Telefon</label><input type="tel" id="patientPhone" placeholder="05xx xxx xx xx"></div>
-    <div class="form-group"><label>E-posta</label><input type="email" id="patientEmail" placeholder="ornek@mail.com"></div>
-    <div class="form-group"><label>Dogum Tarihi</label><input type="date" id="patientBirthdate"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Telefon</label><input type="tel" id="patientPhone" placeholder="05xx xxx xx xx"></div>
+        <div class="form-group"><label>E-posta</label><input type="email" id="patientEmail" placeholder="ornek@mail.com"></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div class="form-group"><label>Dogum Tarihi</label><input type="date" id="patientBirthdate"></div>
+        <div class="form-group"><label>Boy (cm)</label><input type="number" id="patientHeight" placeholder="167" min="50" max="250"></div>
+    </div>
     <div class="form-group"><label>Tedavi Durumu</label><select id="patientStatus"><option value="aktif">Aktif (Devam Ediyor)</option><option value="tamamlandi">Tedavi Tamamlandi</option><option value="beklemede">Beklemede</option></select></div>
-    <div class="form-group"><label>Notlar</label><textarea id="patientNotes" placeholder="Diyet notu, alerji, ozel durum..."></textarea></div>
+    <div class="form-group"><label>Saglik Problemleri</label><input type="text" id="patientHealthIssues" placeholder="Tiroid, Gastrit, Diyabet..."></div>
+    <div class="form-group"><label>Alerjiler</label><input type="text" id="patientAllergies" placeholder="Gluten, laktoz, fistik..."></div>
+    <div class="form-group"><label>Kullanilan Ilaclar</label><input type="text" id="patientMedications" placeholder="Euthyrox 25, Metformin..."></div>
+    <div class="form-group"><label>Sevmedigi Yiyecekler</label><input type="text" id="patientDislikedFoods" placeholder="Brokoli, balik, sirkeli seyler..."></div>
+    <div class="form-group"><label>Notlar</label><textarea id="patientNotes" placeholder="Diger bilgiler..."></textarea></div>
     <input type="hidden" id="patientEditId"><input type="hidden" id="patientPhotoData">
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('patientModal')">Iptal</button><button class="btn btn-primary" onclick="savePatient()">Kaydet</button></div>
 </div></div>
@@ -595,10 +646,17 @@ function renderAppointments(){
 
 function addAppointmentForPatient(patientId){
     const p=patients.find(x=>x.id===patientId);if(!p)return;
-    closeModal('patientDetailModal');
     openNewAppointmentModal();
     document.getElementById('aptPatient').value=patientId;
     document.getElementById('aptPatientSearch').value=p.name;
+}
+function shiftWeek(dir){
+    const date=document.getElementById('aptDate').value;
+    if(!date)return;
+    const d=new Date(date+'T00:00:00');
+    d.setDate(d.getDate()+(dir*7));
+    document.getElementById('aptDate').value=d.toISOString().split('T')[0];
+    showDaySchedule();
 }
 function showDaySchedule(){
     const date=document.getElementById('aptDate').value;
@@ -611,7 +669,7 @@ function showDaySchedule(){
     const dayOfWeek=selDate.getDay();
     const monday=new Date(selDate);monday.setDate(selDate.getDate()-dayOfWeek+(dayOfWeek===0?-6:1));
     const dayNames=['PZT','SAL','CAR','PER','CUM','CMT','PAZ'];
-    let weekHtml='<div class="mini-week">';
+    let weekHtml='<div style="display:flex;align-items:center;gap:4px;margin-bottom:12px"><button class="mw-arrow" onclick="shiftWeek(-1)">&#9664;</button><div class="mini-week">';
     for(let i=0;i<7;i++){
         const d=new Date(monday);d.setDate(monday.getDate()+i);
         const ds=d.toISOString().split('T')[0];
@@ -620,12 +678,12 @@ function showDaySchedule(){
         const isToday=ds===today;
         weekHtml+=`<div class="mini-week-day ${isActive?'mw-active':''} ${isToday?'mw-today':''}" onclick="document.getElementById('aptDate').value='${ds}';showDaySchedule()"><div class="mw-name">${dayNames[i]}</div><div class="mw-num">${d.getDate()}</div><div class="mw-count ${cnt?'':'mw-empty'}">${cnt?cnt+' randevu':'-'}</div></div>`;
     }
-    weekHtml+='</div>';
+    weekHtml+='</div><button class="mw-arrow" onclick="shiftWeek(1)">&#9654;</button></div>';
     // Day schedule
     const dayApts=appointments.filter(a=>a.date===date&&a.id!==editId).sort((a,b)=>a.time.localeCompare(b.time));
     let schedHtml='';
     if(!dayApts.length){schedHtml=`<div class="day-schedule-empty">Bu gun bos - randevu yok</div>`}
-    else{schedHtml=`<div class="day-schedule-title">Secili gunun programi (${dayApts.length} randevu)</div>${dayApts.map(a=>{const p=patients.find(x=>x.id===a.patientId);return`<div class="day-schedule-item"><span class="ds-time">${a.time}</span><span class="ds-name">${p?p.name:'?'}</span><span class="ds-dur">${a.duration} dk</span></div>`}).join('')}`}
+    else{schedHtml=`<div class="day-schedule-title">Secili gunun programi (${dayApts.length} randevu)</div>${dayApts.map(a=>{const p=patients.find(x=>x.id===a.patientId);return`<div class="day-schedule-item"><span class="ds-time">${a.time}</span><span class="ds-name" style="cursor:pointer;text-decoration:underline;text-decoration-color:rgba(108,99,255,0.3)" onclick="event.stopPropagation();closeModal('appointmentModal');showPatientDetail('${a.patientId}')">${p?p.name:'?'}</span><span class="ds-dur">${a.duration} dk</span></div>`}).join('')}`}
     panel.innerHTML=weekHtml+`<div class="day-schedule">${schedHtml}</div>`;
 }
 function openNewAppointmentModal(){
@@ -701,8 +759,8 @@ function renderPatients(){
     }).join('');
 }
 function filterPatient(f){patientFilter=f;renderPatients()}
-function openNewPatientModal(){document.getElementById('patientModalTitle').textContent='Yeni Hasta';document.getElementById('patientEditId').value='';document.getElementById('patientName').value='';document.getElementById('patientPhone').value='';document.getElementById('patientEmail').value='';document.getElementById('patientBirthdate').value='';document.getElementById('patientStatus').value='aktif';document.getElementById('patientNotes').value='';document.getElementById('patientPhotoData').value='';document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden');openModal('patientModal')}
-function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;document.getElementById('patientModalTitle').textContent='Hasta Duzenle';document.getElementById('patientEditId').value=id;document.getElementById('patientName').value=p.name;document.getElementById('patientPhone').value=p.phone||'';document.getElementById('patientEmail').value=p.email||'';document.getElementById('patientBirthdate').value=p.birthdate||'';document.getElementById('patientStatus').value=p.status||'aktif';document.getElementById('patientNotes').value=p.notes||'';document.getElementById('patientPhotoData').value=p.photo||'';if(p.photo){document.getElementById('photoPreview').src=p.photo;document.getElementById('photoPreview').classList.remove('hidden');document.getElementById('photoPlaceholder').classList.add('hidden')}else{document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden')}closeModal('patientDetailModal');openModal('patientModal')}
+function openNewPatientModal(){document.getElementById('patientModalTitle').textContent='Yeni Hasta';document.getElementById('patientEditId').value='';document.getElementById('patientName').value='';document.getElementById('patientPhone').value='';document.getElementById('patientEmail').value='';document.getElementById('patientBirthdate').value='';document.getElementById('patientHeight').value='';document.getElementById('patientStatus').value='aktif';document.getElementById('patientHealthIssues').value='';document.getElementById('patientAllergies').value='';document.getElementById('patientMedications').value='';document.getElementById('patientDislikedFoods').value='';document.getElementById('patientNotes').value='';document.getElementById('patientPhotoData').value='';document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden');openModal('patientModal')}
+function editPatient(id){const p=patients.find(x=>x.id===id);if(!p)return;document.getElementById('patientModalTitle').textContent='Hasta Duzenle';document.getElementById('patientEditId').value=id;document.getElementById('patientName').value=p.name;document.getElementById('patientPhone').value=p.phone||'';document.getElementById('patientEmail').value=p.email||'';document.getElementById('patientBirthdate').value=p.birthdate||'';document.getElementById('patientHeight').value=p.height||'';document.getElementById('patientStatus').value=p.status||'aktif';document.getElementById('patientHealthIssues').value=p.healthIssues||'';document.getElementById('patientAllergies').value=p.allergies||'';document.getElementById('patientMedications').value=p.medications||'';document.getElementById('patientDislikedFoods').value=p.dislikedFoods||'';document.getElementById('patientNotes').value=p.notes||'';document.getElementById('patientPhotoData').value=p.photo||'';if(p.photo){document.getElementById('photoPreview').src=p.photo;document.getElementById('photoPreview').classList.remove('hidden');document.getElementById('photoPlaceholder').classList.add('hidden')}else{document.getElementById('photoPreview').classList.add('hidden');document.getElementById('photoPlaceholder').classList.remove('hidden')}openModal('patientModal')}
 // Photo crop system
 let cropState={imgSrc:'',imgW:0,imgH:0,x:0,y:0,zoom:100,dragging:false,startX:0,startY:0,origX:0,origY:0};
 
@@ -786,40 +844,62 @@ function applyCrop(){
     };
     srcImg.src=cropState.imgSrc;
 }
-async function savePatient(){const name=document.getElementById('patientName').value.trim();if(!name){showToast('Hasta adi zorunlu!','error');return}const data={userId:currentUser.uid,name,phone:document.getElementById('patientPhone').value.trim(),email:document.getElementById('patientEmail').value.trim(),birthdate:document.getElementById('patientBirthdate').value,status:document.getElementById('patientStatus').value,notes:document.getElementById('patientNotes').value.trim(),photo:document.getElementById('patientPhotoData').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};const eid=document.getElementById('patientEditId').value;try{if(eid){await db.collection('patients').doc(eid).update(data);showToast('Hasta guncellendi!','success')}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('patients').add(data);showToast('Hasta eklendi!','success')}closeModal('patientModal')}catch(e){showToast('Hata: '+e.message,'error')}}
-async function deletePatient(id){if(!confirm('Bu hastayi silmek istediginize emin misiniz?'))return;try{const s=await db.collection('appointments').where('patientId','==',id).get();const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));b.delete(db.collection('patients').doc(id));await b.commit();closeModal('patientDetailModal');showToast('Hasta silindi.','success')}catch(e){showToast('Hata: '+e.message,'error')}}
-let currentDetailPatientId=null;
+async function savePatient(){const name=document.getElementById('patientName').value.trim();if(!name){showToast('Hasta adi zorunlu!','error');return}const data={userId:currentUser.uid,name,phone:document.getElementById('patientPhone').value.trim(),email:document.getElementById('patientEmail').value.trim(),birthdate:document.getElementById('patientBirthdate').value,height:document.getElementById('patientHeight').value,status:document.getElementById('patientStatus').value,healthIssues:document.getElementById('patientHealthIssues').value.trim(),allergies:document.getElementById('patientAllergies').value.trim(),medications:document.getElementById('patientMedications').value.trim(),dislikedFoods:document.getElementById('patientDislikedFoods').value.trim(),notes:document.getElementById('patientNotes').value.trim(),photo:document.getElementById('patientPhotoData').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};const eid=document.getElementById('patientEditId').value;try{if(eid){await db.collection('patients').doc(eid).update(data);showToast('Hasta guncellendi!','success');if(currentDetailPatientId===eid)setTimeout(()=>renderProfilePage(eid),500)}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('patients').add(data);showToast('Hasta eklendi!','success')}closeModal('patientModal')}catch(e){showToast('Hata: '+e.message,'error')}}
+async function deletePatient(id){if(!confirm('Bu hastayi silmek istediginize emin misiniz?'))return;try{const s=await db.collection('appointments').where('patientId','==',id).get();const b=db.batch();s.docs.forEach(d=>b.delete(d.ref));b.delete(db.collection('patients').doc(id));await b.commit();showToast('Hasta silindi.','success');showPage('patients');document.querySelector('.nav-menu li:nth-child(4)').classList.add('active')}catch(e){showToast('Hata: '+e.message,'error')}}
+let currentDetailPatientId=null;let profileTab='genel';
 function showPatientDetail(id){
     currentDetailPatientId=id;
+    // Close any open modals
+    document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active'));
+    // Navigate to profile page
+    document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+    document.getElementById('page-profile').classList.add('active');
+    document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));
+    localStorage.setItem('currentPage','profile');
+    localStorage.setItem('currentProfileId',id);
+    renderProfilePage(id);
+}
+function renderProfilePage(id){
     const p=patients.find(x=>x.id===id);if(!p)return;
     const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;
-    // Header
     const lw=getLatestWeight(id);
-    document.getElementById('patientDetailHeader').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><span class="patient-status-badge pstatus-${st}" style="margin-top:8px">${stName}</span>${lw?`<p style="color:var(--primary-light);font-size:14px;font-weight:600;margin-top:8px">${lw} kg</p>`:''}<p style="color:var(--text-muted);font-size:13px;margin-top:4px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>`;
-    // Actions
-    document.getElementById('patientDetailActions').innerHTML=`<div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-sm" style="background:linear-gradient(135deg,var(--primary),#a78bfa);color:white" onclick="editPatient('${id}')">Duzenle</button><button class="btn btn-success btn-sm" onclick="addAppointmentForPatient('${id}')">+ Randevu Ekle</button></div>`;
-    // Genel tab
-    renderGenelTab(id);
-    // Kilo tab
+    const pa=appointments.filter(a=>a.patientId===id);
+    const age=p.birthdate?Math.floor((new Date()-new Date(p.birthdate))/(365.25*24*60*60*1000)):'';
+    document.getElementById('profilePageTitle').textContent=p.name;
+    document.getElementById('profileActions').innerHTML=`<button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-sm" style="background:linear-gradient(135deg,var(--primary),#a78bfa);color:white" onclick="editPatient('${id}')">Duzenle</button><button class="btn btn-success btn-sm" onclick="addAppointmentForPatient('${id}')">+ Randevu Ekle</button>`;
+    // Profile content
+    let html=`<div class="profile-top"><div class="card profile-sidebar"><div class="profile-avatar">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><div class="profile-name">${p.name}</div><span class="patient-status-badge pstatus-${st}">${stName}</span>${lw?`<p style="color:var(--primary-light);font-size:18px;font-weight:700;margin-top:12px">${lw} kg</p>`:''}<p class="profile-contact" style="margin-top:12px">${p.phone||'Telefon yok'}</p>${p.email?`<p class="profile-contact">${p.email}</p>`:''}</div><div><div class="profile-info-grid">`;
+    // Info cards
+    const infoCards=[
+        {icon:'&#128197;',label:'Randevular',value:pa.length+' gorusme'},
+        {icon:'&#127874;',label:'Yas',value:age?age+' yas':'Belirtilmedi'},
+        {icon:'&#128207;',label:'Boy',value:p.height?p.height+' cm':'Belirtilmedi'},
+        {icon:'&#9878;',label:'Kullanilan Ilaclar',value:p.medications||''},
+        {icon:'&#9888;',label:'Alerjiler',value:p.allergies||''},
+        {icon:'&#127973;',label:'Saglik Problemleri',value:p.healthIssues||''},
+        {icon:'&#127860;',label:'Sevmedigi Yiyecekler',value:p.dislikedFoods||''},
+        {icon:'&#128221;',label:'Diger Bilgiler',value:p.notes||''}
+    ];
+    infoCards.forEach(c=>{
+        html+=`<div class="profile-info-card"><div class="pic-icon">${c.icon}</div><div class="pic-label">${c.label}</div><div class="pic-value ${c.value?'':'pic-empty'}">${c.value||'Belirtilmedi'}</div></div>`;
+    });
+    html+=`</div></div></div>`;
+    // Tabs
+    html+=`<div class="profile-tabs"><button class="profile-tab ${profileTab==='genel'?'active':''}" onclick="profileTab='genel';renderProfileTabs('${id}')">Randevu Gecmisi</button><button class="profile-tab ${profileTab==='kilo'?'active':''}" onclick="profileTab='kilo';renderProfileTabs('${id}')">Kilo Takibi</button></div><div id="profileTabContent"></div>`;
+    document.getElementById('profileContent').innerHTML=html;
+    renderProfileTabs(id);
     loadWeightRecords(id);
-    // Reset tabs
-    document.querySelectorAll('.detail-tab').forEach((t,i)=>{t.classList.toggle('active',i===0)});
-    document.getElementById('detailTabGenel').classList.add('active');
-    document.getElementById('detailTabKilo').classList.remove('active');
-    openModal('patientDetailModal');
 }
-function renderGenelTab(id){
-    const p=patients.find(x=>x.id===id);if(!p)return;
-    const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));
-    document.getElementById('detailTabGenel').innerHTML=`
-        ${p.notes?`<div class="card"><div class="card-title">Notlar</div><p style="font-size:14px;color:var(--text-muted)">${p.notes}</p></div>`:''}
-        <div class="card"><div class="card-title">Randevu Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div>`;
-}
-function switchDetailTab(tab,btn){
-    document.querySelectorAll('.detail-tab').forEach(t=>t.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('detailTabGenel').classList.toggle('active',tab==='genel');
-    document.getElementById('detailTabKilo').classList.toggle('active',tab==='kilo');
+function renderProfileTabs(id){
+    const el=document.getElementById('profileTabContent');
+    if(profileTab==='genel'){
+        const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));
+        el.innerHTML=`<div class="card"><div class="card-title">Gorusme Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item" onclick="showAptQuickModal('${a.id}')"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-name">${getTypeName(a.type)}</div><div class="apt-type">${a.duration} dk${a.notes?' - '+a.notes.slice(0,50)+(a.notes.length>50?'...':''):''}</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div>`;
+    }else{
+        // Kilo tab rendered by loadWeightRecords -> renderKiloTab
+        el.innerHTML='<div id="detailTabKilo"></div>';
+        renderKiloTab(id);
+    }
 }
 
 // WEIGHT TRACKING
@@ -1098,7 +1178,7 @@ function goToPage(page,filter){
 function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));event.currentTarget.classList.add('active');if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('active');localStorage.setItem('currentPage',page)}
 
 // Sayfa yenilendiginde ayni sayfada kal
-function restorePage(){const saved=localStorage.getItem('currentPage');if(saved&&document.getElementById('page-'+saved)){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+saved).classList.add('active');document.querySelectorAll('.nav-menu li').forEach((li,i)=>{li.classList.remove('active');const pages=['dashboard','calendar','appointments','patients','settings'];if(pages[i]===saved)li.classList.add('active')});if(saved==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),200)}}
+function restorePage(){const saved=localStorage.getItem('currentPage');if(saved&&document.getElementById('page-'+saved)){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+saved).classList.add('active');document.querySelectorAll('.nav-menu li').forEach((li,i)=>{li.classList.remove('active');const pages=['dashboard','calendar','appointments','patients','settings'];if(pages[i]===saved)li.classList.add('active')});if(saved==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),200);if(saved==='profile'){const pid=localStorage.getItem('currentProfileId');if(pid)setTimeout(()=>renderProfilePage(pid),300)}}}
 // SETTINGS - Custom types with toggle
 const defaultTypes={'ilk-gorusme':'Ilk Gorusme','kontrol':'Kontrol','olcum':'Olcum','online':'Online'};
 function getDisabledTypes(){return JSON.parse(localStorage.getItem('disabledTypes')||'[]')}
@@ -1150,6 +1230,27 @@ function removeCustomType(key){
     if(idx>-1){disabled.splice(idx,1);localStorage.setItem('disabledTypes',JSON.stringify(disabled))}
     renderTypes();showToast('Tur silindi.','success');
 }
+
+// THEME
+function toggleTheme(){
+    const html=document.documentElement;
+    const current=html.getAttribute('data-theme');
+    const next=current==='light'?'dark':'light';
+    html.setAttribute('data-theme',next);
+    localStorage.setItem('theme',next);
+    updateThemeLabel();
+}
+function updateThemeLabel(){
+    const theme=document.documentElement.getAttribute('data-theme')||'dark';
+    const label=document.getElementById('themeLabel');
+    if(label)label.textContent=theme==='dark'?'Acik Tema':'Koyu Tema';
+}
+function initTheme(){
+    const saved=localStorage.getItem('theme')||'dark';
+    document.documentElement.setAttribute('data-theme',saved);
+    updateThemeLabel();
+}
+initTheme();
 
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active')}
 function openModal(id){document.getElementById(id).classList.add('active')}
