@@ -637,10 +637,10 @@ function renderAppointments(){
         html+=`<div class="apt-day-group"><div class="apt-day-header"><div><div class="adh-date">${formatDate(date)}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div>`;
         apts.forEach(a=>{
             const p=patients.find(p=>p.id===a.patientId);
-            const w=getLatestWeight(a.patientId);
+            const w=getLatestWeight(a.patientId);const anum=getAptNum(a);
             html+=`<div class="apt-list-item" onclick="showAptQuickModal('${a.id}')">
                 <div class="apt-list-time">${a.time}</div>
-                <div class="apt-list-info"><div class="apt-list-name">${p?p.name:'?'}</div><div class="apt-list-meta">${getTypeName(a.type)} - ${a.duration} dk${w?' &middot; '+w+' kg':''}</div></div>
+                <div class="apt-list-info"><div class="apt-list-name">${p?p.name:'?'} <span style="font-size:11px;color:var(--primary);font-weight:600">(${anum}. G.)</span></div><div class="apt-list-meta">${getTypeName(a.type)} - ${a.duration} dk${w?' &middot; '+w+' kg':''}</div></div>
                 <span class="apt-status status-${a.status}">${getStatusName(a.status)}</span>
             </div>`;
         });
@@ -903,8 +903,9 @@ function renderProfilePage(id){
 function renderProfileTabs(id){
     const el=document.getElementById('profileTabContent');
     if(profileTab==='genel'){
-        const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>b.date.localeCompare(a.date));
-        el.innerHTML=`<div class="card"><div class="card-title">Gorusme Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':pa.map(a=>`<div class="appointment-item" onclick="showAptQuickModal('${a.id}')"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-name">${getTypeName(a.type)}</div><div class="apt-type">${a.duration} dk${a.notes?' - '+a.notes.slice(0,50)+(a.notes.length>50?'...':''):''}</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`).join('')}</div>`;
+        const pa=appointments.filter(a=>a.patientId===id).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+        const paReversed=[...pa].reverse();
+        el.innerHTML=`<div class="card"><div class="card-title">Gorusme Gecmisi (${pa.length})</div>${!pa.length?'<p style="color:var(--text-muted);font-size:14px">Henuz randevu yok</p>':paReversed.map(a=>{const num=pa.indexOf(a)+1;return`<div class="appointment-item" onclick="showAptQuickModal('${a.id}')"><div style="min-width:36px;text-align:center"><div style="font-size:11px;font-weight:700;color:var(--primary);background:rgba(108,99,255,0.1);border-radius:8px;padding:4px 6px">${num}.</div></div><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-name">${getTypeName(a.type)}</div><div class="apt-type">${a.duration} dk${a.notes?' - '+a.notes.slice(0,50)+(a.notes.length>50?'...':''):''}</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`}).join('')}</div>`;
     }else{
         // Kilo tab rendered by loadWeightRecords -> renderKiloTab
         el.innerHTML='<div id="detailTabKilo"></div>';
@@ -1073,6 +1074,8 @@ function showAptQuickModal(id){
     quickModalAptId=id;
     quickModalSelectedStatus=a.status;
     const p=patients.find(x=>x.id===a.patientId);
+    const patApts=appointments.filter(x=>x.patientId===a.patientId).sort((x,y)=>x.date.localeCompare(y.date)||x.time.localeCompare(y.time));
+    const aptNum=patApts.findIndex(x=>x.id===id)+1;
     const statusBtns=['bekliyor','geldi','gelmedi','iptal'].map(s=>{
         const active=a.status===s;
         const colors={bekliyor:'var(--warning)',geldi:'var(--success)',gelmedi:'var(--danger)',iptal:'var(--text-muted)'};
@@ -1084,6 +1087,7 @@ function showAptQuickModal(id){
         <div style="text-align:center;margin-bottom:20px">
             <div class="patient-avatar" style="width:56px;height:56px;font-size:22px;margin:0 auto 10px;border-radius:16px">${p&&p.photo?`<img src="${p.photo}" alt="${p.name}">`:((p?p.name:'?').charAt(0).toUpperCase())}</div>
             <h3 style="font-size:18px;margin-bottom:4px">${p?p.name:'Bilinmeyen'}</h3>
+            <span style="font-size:12px;font-weight:600;color:var(--primary);background:rgba(108,99,255,0.1);padding:3px 10px;border-radius:8px">${aptNum}. Gorusme</span>
             ${(()=>{const w=getLatestWeight(a.patientId);return w?`<p style="color:var(--primary-light);font-size:13px;font-weight:600;margin-top:4px">Guncel Kilo: ${w} kg</p>`:''})()}
         </div>
         <div style="display:flex;gap:8px;margin-bottom:16px">${statusBtns}</div>
@@ -1135,7 +1139,7 @@ async function renderCalendar(){
         const endH=hh+Math.floor((mm+dur)/60);const endM=(mm+dur)%60;
         const endTime=String(endH).padStart(2,'0')+':'+String(endM).padStart(2,'0');
         return{id:a.id,title:`${p?p.name:'?'} ${a.time}`,start:a.date+'T'+a.time,end:a.date+'T'+endTime,backgroundColor:bgColors[a.status]||'#6C63FF',borderColor:'transparent',classNames:['evt-'+a.status],
-            extendedProps:{patientName:p?p.name:'?',type:getTypeName(a.type),typeShort:getTypeShort(a.type),duration:a.duration,status:a.status,time:a.time,weight:getLatestWeight(a.patientId)}};
+            extendedProps:{patientName:p?p.name:'?',type:getTypeName(a.type),typeShort:getTypeShort(a.type),duration:a.duration,status:a.status,time:a.time,weight:getLatestWeight(a.patientId),aptNum:getAptNum(a)}};
     });
     if(calendarInstance){calendarInstance.removeAllEvents();calendarInstance.addEventSource(evts);return}
     calendarInstance=new FullCalendar.Calendar(calEl,{
@@ -1156,7 +1160,7 @@ async function renderCalendar(){
         slotEventOverlap:false,
         eventContent:function(arg){
             const ep=arg.event.extendedProps;
-            return{html:`<div class="evt-card"><div class="evt-left"><span class="evt-name">${ep.patientName}</span><span class="evt-time">${ep.time}${ep.weight?' &middot; '+ep.weight+'kg':''}</span></div><div class="evt-divider"></div><div class="evt-right">${ep.typeShort}</div></div>`};
+            return{html:`<div class="evt-card"><div class="evt-left"><span class="evt-name">${ep.patientName}</span><span class="evt-time">${ep.aptNum}. G. &middot; ${ep.time}${ep.weight?' &middot; '+ep.weight+'kg':''}</span></div><div class="evt-divider"></div><div class="evt-right">${ep.typeShort}</div></div>`};
         },
         dateClick:function(info){showDayModal(info.dateStr)},
         eventClick:function(info){info.jsEvent.stopPropagation();showAptQuickModal(info.event.id)},
@@ -1327,6 +1331,7 @@ function openModal(id){document.getElementById(id).classList.add('active')}
 function closeModal(id){document.getElementById(id).classList.remove('active')}
 document.addEventListener('click',function(e){if(e.target.classList.contains('modal-overlay')&&e.target.classList.contains('active')){e.target.classList.remove('active')}})
 function showToast(msg,type='success'){const c=document.getElementById('toastContainer');const t=document.createElement('div');t.className=`toast toast-${type}`;t.textContent=msg;c.appendChild(t);setTimeout(()=>t.remove(),3000)}
+function getAptNum(apt){const pa=appointments.filter(a=>a.patientId===apt.patientId).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));return pa.findIndex(a=>a.id===apt.id)+1}
 function getLatestWeight(patientId){const pw=allWeights.filter(w=>w.patientId===patientId).sort((a,b)=>b.date.localeCompare(a.date));return pw.length?pw[0].weight:null}
 function getTypeName(t){const custom=JSON.parse(localStorage.getItem('customTypes')||'{}');return custom[t]||{'ilk-gorusme':'Ilk Gorusme','kontrol':'Kontrol','olcum':'Olcum','online':'Online'}[t]||t}
 function getTypeShort(t){const custom=JSON.parse(localStorage.getItem('customTypes')||'{}');if(custom[t])return custom[t];return{'ilk-gorusme':'Ilk G.','kontrol':'Kontrol','olcum':'Olcum','online':'Online'}[t]||t}
