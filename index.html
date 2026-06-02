@@ -446,8 +446,8 @@
     <div class="form-group"><label>Hasta *</label><div class="searchable-select" id="patientSelectWrapper"><div class="patient-search-wrap"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="aptPatientSearch" placeholder="Hasta ara..." autocomplete="off" oninput="filterPatientDropdown()" onfocus="showPatientDropdown()" class="patient-search-input"><svg class="chevron" id="patientChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><input type="hidden" id="aptPatient"><div class="dropdown-list" id="patientDropdown"></div></div></div>
     <div class="form-group"><label>Tarih *</label><input type="date" id="aptDate" onchange="showDaySchedule()"></div>
     <div id="daySchedulePanel"></div>
-    <div class="form-group"><label>Saat *</label><input type="time" id="aptTime"></div>
-    <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="30" selected>30 dk</option><option value="45">45 dk</option><option value="60">60 dk</option><option value="90">90 dk</option></select></div>
+    <div class="form-group"><label>Saat *</label><select id="aptTime"></select></div>
+    <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="15">15 dk</option><option value="30" selected>30 dk</option><option value="45">45 dk</option><option value="60">60 dk</option><option value="90">90 dk</option></select></div>
     <div class="form-group"><label>Randevu Turu</label><select id="aptType"><option value="gorusme">Gorusme</option><option value="kontrol">Kontrol</option><option value="olcum">Olcum</option><option value="online">Online</option></select></div>
     <div class="form-group"><label>Durum</label><select id="aptStatus"><option value="bekliyor">Bekliyor</option><option value="geldi">Geldi</option><option value="gelmedi">Gelmedi</option><option value="iptal">Iptal</option></select></div>
     <div class="form-group"><label>Notlar</label><textarea id="aptNotes" placeholder="Randevu notlari..."></textarea></div>
@@ -687,6 +687,39 @@ function addAppointmentForPatient(patientId){
     document.getElementById('aptPatient').value=patientId;
     document.getElementById('aptPatientSearch').value=p.name;
 }
+function populateTimeSlots(){
+    const sel=document.getElementById('aptTime');
+    const cv=sel.value;
+    sel.innerHTML='';
+    for(let h=8;h<=20;h++){
+        for(let m=0;m<60;m+=15){
+            if(h===20&&m>30)break;
+            const t=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+            sel.innerHTML+=`<option value="${t}">${t}</option>`;
+        }
+    }
+    if(cv)sel.value=cv;
+}
+
+function checkTimeConflict(){
+    const date=document.getElementById('aptDate').value;
+    const time=document.getElementById('aptTime').value;
+    const duration=parseInt(document.getElementById('aptDuration').value)||30;
+    const editId=document.getElementById('aptEditId').value;
+    if(!date||!time)return null;
+    const [h,m]=time.split(':').map(Number);
+    const startMin=h*60+m;
+    const endMin=startMin+duration;
+    const conflict=appointments.find(a=>{
+        if(a.date!==date||a.id===editId)return false;
+        const [ah,am]=a.time.split(':').map(Number);
+        const aStart=ah*60+am;
+        const aEnd=aStart+(parseInt(a.duration)||30);
+        return startMin<aEnd&&endMin>aStart;
+    });
+    return conflict;
+}
+
 function localDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function shiftWeek(dir){
     const date=document.getElementById('aptDate').value;
@@ -727,19 +760,21 @@ function showDaySchedule(){
 function openNewAppointmentModal(){
     document.getElementById('aptModalTitle').textContent='Yeni Randevu';document.getElementById('aptEditId').value='';document.getElementById('aptPatient').value='';document.getElementById('aptPatientSearch').value='';
     document.getElementById('aptDate').value=new Date().toISOString().split('T')[0];document.getElementById('aptTime').value='09:00';document.getElementById('aptDuration').value='30';
-    document.getElementById('aptType').value='gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';showDaySchedule();openModal('appointmentModal');
+    document.getElementById('aptType').value='gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';populateTimeSlots();document.getElementById('aptTime').value='09:00';showDaySchedule();openModal('appointmentModal');
 }
 function editAppointment(id){
     const apt=appointments.find(a=>a.id===id);if(!apt)return;
     document.getElementById('aptModalTitle').textContent='Randevu Duzenle';document.getElementById('aptEditId').value=id;
     document.getElementById('aptPatient').value=apt.patientId;
     const ap=patients.find(p=>p.id===apt.patientId);document.getElementById('aptPatientSearch').value=ap?ap.name:'';
-    document.getElementById('aptDate').value=apt.date;document.getElementById('aptTime').value=apt.time;document.getElementById('aptDuration').value=apt.duration;
+    document.getElementById('aptDate').value=apt.date;populateTimeSlots();document.getElementById('aptTime').value=apt.time;document.getElementById('aptDuration').value=apt.duration;
     document.getElementById('aptType').value=apt.type;document.getElementById('aptStatus').value=apt.status;document.getElementById('aptNotes').value=apt.notes||'';showDaySchedule();openModal('appointmentModal');
 }
 async function saveAppointment(){
     const pid=document.getElementById('aptPatient').value,date=document.getElementById('aptDate').value,time=document.getElementById('aptTime').value;
     if(!pid||!date||!time){showToast('Hasta, tarih ve saat zorunlu!','error');return}
+    const conflict=checkTimeConflict();
+    if(conflict){const cp=patients.find(x=>x.id===conflict.patientId);showToast(`Cakisma! ${conflict.time} - ${cp?cp.name:'?'} randevusu var`,'error');return}
     const data={userId:currentUser.uid,patientId:pid,date,time,duration:document.getElementById('aptDuration').value,type:document.getElementById('aptType').value,status:document.getElementById('aptStatus').value,notes:document.getElementById('aptNotes').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
     const eid=document.getElementById('aptEditId').value;
     try{if(eid){await db.collection('appointments').doc(eid).update(data);showToast('Randevu guncellendi!','success')}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('appointments').add(data);showToast('Randevu eklendi!','success')}closeModal('appointmentModal')}catch(e){showToast('Hata: '+e.message,'error')}
@@ -1177,7 +1212,7 @@ async function renderCalendar(){
         height:'auto',events:evts,
         slotMinTime:'08:00:00',
         slotMaxTime:'21:00:00',
-        slotDuration:'00:30:00',
+        slotDuration:'00:15:00',
         slotLabelInterval:'00:30:00',
         slotLabelFormat:{hour:'2-digit',minute:'2-digit',hour12:false},
         allDaySlot:false,
@@ -1196,7 +1231,10 @@ async function renderCalendar(){
             const s=info.event.start;
             const newDate=localDateStr(s);
             const newTime=String(s.getHours()).padStart(2,'0')+':'+String(s.getMinutes()).padStart(2,'0');
-            try{await db.collection('appointments').doc(info.event.id).update({date:newDate,time:newTime,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('Randevu taşındı: '+newDate+' '+newTime,'success')}
+            const dur=parseInt(apt.duration)||30;const[nh,nm]=newTime.split(':').map(Number);const nS=nh*60+nm;const nE=nS+dur;
+            const conflict=appointments.find(a=>{if(a.date!==newDate||a.id===apt.id)return false;const[ah,am]=a.time.split(':').map(Number);const aS=ah*60+am;const aE=aS+(parseInt(a.duration)||30);return nS<aE&&nE>aS});
+            if(conflict){const cp=patients.find(x=>x.id===conflict.patientId);info.revert();showToast('Cakisma! '+conflict.time+' - '+(cp?cp.name:'?')+' randevusu var','error');return}
+            try{await db.collection('appointments').doc(info.event.id).update({date:newDate,time:newTime,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('Randevu tasindi: '+newDate+' '+newTime,'success')}
             catch(e){info.revert();showToast('Hata: '+e.message,'error')}
         },
         dayMaxEvents:2,
