@@ -416,7 +416,7 @@
             <div id="patientList" class="patient-grid"></div>
         </div>
         <div id="page-profile" class="page">
-            <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><button class="btn btn-outline btn-sm" onclick="showPage('patients');document.querySelector('.nav-menu li:nth-child(4)').classList.add('active')">&#9664; Hastalar</button><h1 id="profilePageTitle">Hasta Profili</h1></div><div class="header-actions" id="profileActions"></div></div>
+            <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><button class="btn btn-outline btn-sm" onclick="goBack()" title="Geri">&#9664;</button><button class="btn btn-outline btn-sm" onclick="goToPage('patients')">Hastalar</button><h1 id="profilePageTitle">Hasta Profili</h1></div><div class="header-actions" id="profileActions"></div></div>
             <div id="profileContent"></div>
         </div>
         <div id="page-settings" class="page">
@@ -544,6 +544,9 @@ async function loadData(){
     db.collection('appointments').where('userId','==',currentUser.uid).orderBy('date').onSnapshot(s=>{appointments=s.docs.map(d=>({id:d.id,...d.data()}));renderDashboard();renderAppointments();renderCalendar();renderPatients();updateStats()});
     db.collection('weights').where('userId','==',currentUser.uid).onSnapshot(s=>{allWeights=s.docs.map(d=>({id:d.id,...d.data()}));renderCalendar()},()=>{});
     restorePage();renderTypes();
+    const savedPage=localStorage.getItem('currentPage')||'dashboard';
+    if(savedPage==='profile'){const pid=localStorage.getItem('currentProfileId');navHistory.push({page:'profile',patientId:pid})}
+    else{navHistory.push({page:savedPage})}
 }
 
 function renderDashboard(){
@@ -849,14 +852,13 @@ async function deletePatient(id){if(!confirm('Bu hastayi silmek istediginize emi
 let currentDetailPatientId=null;let profileTab='genel';
 function showPatientDetail(id){
     currentDetailPatientId=id;
-    // Close any open modals
     document.querySelectorAll('.modal-overlay.active').forEach(m=>m.classList.remove('active'));
-    // Navigate to profile page
     document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
     document.getElementById('page-profile').classList.add('active');
     document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));
     localStorage.setItem('currentPage','profile');
     localStorage.setItem('currentProfileId',id);
+    pushNav({page:'profile',patientId:id});
     renderProfilePage(id);
 }
 function renderProfilePage(id){
@@ -1174,8 +1176,9 @@ function goToPage(page,filter){
     document.getElementById('sidebar').classList.remove('open');
     document.getElementById('overlay').classList.remove('active');
     localStorage.setItem('currentPage',page);
+    pushNav({page:page});
 }
-function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));event.currentTarget.classList.add('active');if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('active');localStorage.setItem('currentPage',page)}
+function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+page).classList.add('active');document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));if(event&&event.currentTarget)event.currentTarget.classList.add('active');if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);document.getElementById('sidebar').classList.remove('open');document.getElementById('overlay').classList.remove('active');localStorage.setItem('currentPage',page);pushNav({page:page})}
 
 // Sayfa yenilendiginde ayni sayfada kal
 function restorePage(){const saved=localStorage.getItem('currentPage');if(saved&&document.getElementById('page-'+saved)){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+saved).classList.add('active');document.querySelectorAll('.nav-menu li').forEach((li,i)=>{li.classList.remove('active');const pages=['dashboard','calendar','appointments','patients','settings'];if(pages[i]===saved)li.classList.add('active')});if(saved==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),200);if(saved==='profile'){const pid=localStorage.getItem('currentProfileId');if(pid)setTimeout(()=>renderProfilePage(pid),300)}}}
@@ -1230,6 +1233,46 @@ function removeCustomType(key){
     if(idx>-1){disabled.splice(idx,1);localStorage.setItem('disabledTypes',JSON.stringify(disabled))}
     renderTypes();showToast('Tur silindi.','success');
 }
+
+// HISTORY / NAVIGATION
+let navHistory=[];
+function pushNav(state){
+    navHistory.push(state);
+    history.pushState(state,'',' ');
+}
+function goBack(){
+    if(navHistory.length>1){
+        navHistory.pop();
+        const prev=navHistory[navHistory.length-1];
+        navigateToState(prev,true);
+    }
+}
+function navigateToState(state,skipPush){
+    if(!state)return;
+    if(state.page==='profile'&&state.patientId){
+        currentDetailPatientId=state.patientId;
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        document.getElementById('page-profile').classList.add('active');
+        document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));
+        renderProfilePage(state.patientId);
+    }else if(state.page){
+        document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+        document.getElementById('page-'+state.page).classList.add('active');
+        document.querySelectorAll('.nav-menu li').forEach(li=>li.classList.remove('active'));
+        const pages=['dashboard','calendar','appointments','patients','settings'];
+        document.querySelectorAll('.nav-menu li').forEach((li,i)=>{if(pages[i]===state.page)li.classList.add('active')});
+        if(state.page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);
+    }
+    localStorage.setItem('currentPage',state.page);
+    if(state.patientId)localStorage.setItem('currentProfileId',state.patientId);
+}
+window.addEventListener('popstate',function(e){
+    if(navHistory.length>1){
+        navHistory.pop();
+        const prev=navHistory[navHistory.length-1];
+        if(prev)navigateToState(prev,true);
+    }
+});
 
 // THEME
 function toggleTheme(){
