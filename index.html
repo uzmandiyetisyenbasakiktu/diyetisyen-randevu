@@ -561,12 +561,12 @@ function renderDashboard(){
     const todayApts=appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
     const todayEl=document.getElementById('todayAppointments');
     if(!todayApts.length){todayEl.innerHTML='<div class="empty-state"><p>Bugun randevu yok</p></div>'}
-    else{todayEl.innerHTML=todayApts.map(a=>{const p=patients.find(p=>p.id===a.patientId);return`<div class="appointment-item"><div class="apt-time">${a.time}</div><div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`}).join('')}
+    else{todayEl.innerHTML=todayApts.map(a=>{const p=patients.find(p=>p.id===a.patientId);return`<div class="appointment-item"><div class="apt-time"><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`}).join('')}
     const n7=new Date();n7.setDate(n7.getDate()+7);const n7s=n7.toISOString().split('T')[0];
     const upcoming=appointments.filter(a=>a.date>today&&a.date<=n7s).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
     const upEl=document.getElementById('upcomingAppointments');
     if(!upcoming.length){upEl.innerHTML='<div class="empty-state"><p>Yaklasan randevu yok</p></div>'}
-    else{upEl.innerHTML=upcoming.map(a=>{const p=patients.find(p=>p.id===a.patientId);return`<div class="appointment-item"><div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`}).join('')}
+    else{upEl.innerHTML=upcoming.map(a=>{const p=patients.find(p=>p.id===a.patientId);const dayN=getDayName(a.date).slice(0,3);return`<div class="appointment-item"><div class="apt-time"><span style="font-size:11px;color:var(--text-muted)">${dayN}, ${formatDate(a.date).slice(0,5)}</span><br><strong>${a.time}</strong></div><div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)} - ${a.duration} dk</div></div><span class="apt-status status-${a.status}">${getStatusName(a.status)}</span></div>`}).join('')}
 }
 
 function updateStats(){
