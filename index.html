@@ -551,15 +551,22 @@ async function register(){const e=document.getElementById('loginEmail').value,p=
 function logout(){auth.signOut()}
 
 async function loadData(){
-    db.collection('patients').where('userId','==',currentUser.uid).orderBy('name').onSnapshot(s=>{patients=s.docs.map(d=>({id:d.id,...d.data()}));renderPatients();updateStats()});
-    db.collection('appointments').where('userId','==',currentUser.uid).orderBy('date').onSnapshot(s=>{appointments=s.docs.map(d=>({id:d.id,...d.data()}));renderDashboard();renderAppointments();renderCalendar();renderPatients();updateStats()});
-    db.collection('weights').where('userId','==',currentUser.uid).onSnapshot(s=>{allWeights=s.docs.map(d=>({id:d.id,...d.data()}));renderCalendar()},()=>{});
+    db.collection('patients').where('userId','==',currentUser.uid).orderBy('name').onSnapshot(s=>{patients=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
+    db.collection('appointments').where('userId','==',currentUser.uid).orderBy('date').onSnapshot(s=>{appointments=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
+    db.collection('weights').where('userId','==',currentUser.uid).onSnapshot(s=>{allWeights=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},()=>{});
     restorePage();renderTypes();
     const savedPage=localStorage.getItem('currentPage')||'dashboard';
     if(savedPage==='profile'){const pid=localStorage.getItem('currentProfileId');navHistory.push({page:'profile',patientId:pid})}
     else{navHistory.push({page:savedPage})}
 }
 
+function renderAll(){
+    renderDashboard();renderAppointments();renderCalendar();renderPatients();updateStats();
+    // Update profile page if open
+    if(currentDetailPatientId&&document.getElementById('page-profile').classList.contains('active')){
+        renderProfilePage(currentDetailPatientId);
+    }
+}
 function renderDashboard(){
     const today=new Date().toISOString().split('T')[0];
     const todayApts=appointments.filter(a=>a.date===today).sort((a,b)=>a.time.localeCompare(b.time));
