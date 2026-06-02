@@ -403,7 +403,7 @@
                 <div class="stat-card" onclick="goToPage('appointments','today')"><div class="stat-icon">&#128197;</div><div class="stat-label">Bugunun Randevulari</div><div class="stat-value" id="statToday">0</div></div>
                 <div class="stat-card" onclick="goToPage('calendar')"><div class="stat-icon">&#128198;</div><div class="stat-label">Bu Haftaki Randevular</div><div class="stat-value" id="statWeek">0</div></div>
                 <div class="stat-card" onclick="goToPage('patients')"><div class="stat-icon">&#128101;</div><div class="stat-label">Aktif Hasta</div><div class="stat-value" id="statPatients">0</div></div>
-                <div class="stat-card" onclick="goToPage('appointments','gelmedi')"><div class="stat-icon">&#10060;</div><div class="stat-label">Gelmeyen (Bu Ay)</div><div class="stat-value" id="statNoShow">0</div></div>
+                <div class="stat-card" onclick="showNoShowList()"><div class="stat-icon">&#10060;</div><div class="stat-label">Gelmeyen (Bu Ay)</div><div class="stat-value" id="statNoShow">0</div></div>
             </div>
             <div class="card"><div class="card-title">Bugunun Randevulari</div><div id="todayAppointments"></div></div>
             <div class="card"><div class="card-title">Yaklasan Randevular (7 Gun)</div><div id="upcomingAppointments"></div></div>
@@ -500,6 +500,10 @@
     <div class="modal-title"><span>Randevu Detay</span><button class="modal-close" onclick="closeModal('aptQuickModal')">&times;</button></div>
     <div id="aptQuickContent"></div>
 </div></div>
+<div class="modal-overlay" id="noShowModal"><div class="modal" style="max-width:480px">
+    <div class="modal-title"><span>Gelmeyen Hastalar (Bu Ay)</span><button class="modal-close" onclick="closeModal('noShowModal')">&times;</button></div>
+    <div id="noShowContent"></div>
+</div></div>
 <div class="modal-overlay" id="dayModal"><div class="modal" style="max-width:440px">
     <div class="modal-title"><span id="dayModalTitle">Randevular</span><button class="modal-close" onclick="closeModal('dayModal')">&times;</button></div>
     <div id="dayModalContent"></div>
@@ -560,6 +564,21 @@ async function loadData(){
     else{navHistory.push({page:savedPage})}
 }
 
+function showNoShowList(){
+    const monthS=localDateStr(new Date()).slice(0,7);
+    const noShows=appointments.filter(a=>a.date.startsWith(monthS)&&a.status==='gelmedi').sort((a,b)=>b.date.localeCompare(a.date));
+    const el=document.getElementById('noShowContent');
+    if(!noShows.length){el.innerHTML='<div class="empty-state"><p>Bu ay gelmeyen hasta yok</p></div>';openModal('noShowModal');return}
+    el.innerHTML=noShows.map(a=>{
+        const p=patients.find(x=>x.id===a.patientId);
+        return`<div class="appointment-item" style="cursor:pointer" onclick="closeModal('noShowModal');showPatientDetail('${a.patientId}')">
+            <div class="apt-time">${formatDate(a.date)}<br><strong>${a.time}</strong></div>
+            <div class="apt-info"><div class="apt-name">${p?p.name:'?'}</div><div class="apt-type">${getTypeName(a.type)}${p&&p.phone?' &middot; '+p.phone:''}</div></div>
+            <span class="apt-status status-gelmedi">Gelmedi</span>
+        </div>`;
+    }).join('');
+    openModal('noShowModal');
+}
 function renderAll(){
     renderDashboard();renderAppointments();renderCalendar();renderPatients();updateStats();
     // Update profile page if open
