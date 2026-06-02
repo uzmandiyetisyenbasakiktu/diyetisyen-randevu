@@ -416,7 +416,6 @@
             <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><h1>Randevular</h1></div><div class="header-actions"><button class="btn btn-primary btn-sm" onclick="openNewAppointmentModal()">+ Yeni Randevu</button></div></div>
             <div class="search-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="aptSearch" placeholder="Hasta adi ile ara..." oninput="renderAppointments()"></div>
             <div class="filter-bar" id="aptDateFilters"></div>
-            <div class="filter-bar" id="aptStatusFilters"></div>
             <div id="aptResultInfo" style="font-size:13px;color:var(--text-muted);margin-bottom:12px"></div>
             <div id="aptGroupedList"></div>
             <div id="aptPagination" style="display:flex;justify-content:center;gap:12px;margin-top:16px"></div>
@@ -597,12 +596,6 @@ function renderAppointments(){
     else if(aptDateFilter==='upcoming')f=f.filter(a=>a.date>=today);
     else if(aptDateFilter==='past')f=f.filter(a=>a.date<today);
 
-    // Save date-filtered list for status counts
-    const dateFiltered=f.slice();
-
-    // Status filter
-    if(currentFilter!=='all')f=f.filter(a=>a.status===currentFilter);
-
     // Search
     if(search)f=f.filter(a=>{const p=patients.find(p=>p.id===a.patientId);return p&&p.name.toLowerCase().includes(search)});
 
@@ -612,17 +605,10 @@ function renderAppointments(){
     // Render date filter buttons with counts
     const dc=document.getElementById('aptDateFilters');
     const mon=getMonday(new Date()),sun=new Date(mon);sun.setDate(sun.getDate()+6);
-    const monS=mon.toISOString().split('T')[0],sunS=sun.toISOString().split('T')[0],monthS=today.slice(0,7);
-    const dateCounts={today:appointments.filter(a=>a.date===today).length,thisWeek:appointments.filter(a=>a.date>=monS&&a.date<=sunS).length,thisMonth:appointments.filter(a=>a.date.startsWith(monthS)).length,upcoming:appointments.filter(a=>a.date>=today).length,past:appointments.filter(a=>a.date<today).length,all:appointments.length};
-    const dateBtns=[['today','Bugun'],['thisWeek','Bu Hafta'],['thisMonth','Bu Ay'],['upcoming','Gelecek'],['past','Gecmis'],['all','Tumu']];
+    const monS=mon.toISOString().split('T')[0],sunS=sun.toISOString().split('T')[0];
+    const dateCounts={today:appointments.filter(a=>a.date===today).length,thisWeek:appointments.filter(a=>a.date>=monS&&a.date<=sunS).length,all:appointments.length};
+    const dateBtns=[['today','Bugun'],['thisWeek','Bu Hafta'],['all','Tumu']];
     dc.innerHTML=dateBtns.map(([k,v])=>`<button class="filter-btn ${aptDateFilter===k?'active':''}" onclick="aptDateFilter='${k}';aptPage=0;renderAppointments()">${v} (${dateCounts[k]})</button>`).join('');
-
-    // Render status filter buttons - use dateFiltered (before status filter)
-    const sc=document.getElementById('aptStatusFilters');
-    const statusBtns=[['all','Tumu'],['bekliyor','Bekliyor'],['geldi','Geldi'],['gelmedi','Gelmedi'],['iptal','Iptal']];
-    sc.innerHTML=statusBtns.map(([k,v])=>{const cnt=k==='all'?dateFiltered.length:dateFiltered.filter(a=>a.status===k).length;return`<button class="filter-btn ${currentFilter===k?'active':''}" onclick="currentFilter='${k}';aptPage=0;renderAppointments()">${v} (${cnt})</button>`}).join('');
-
-    // Re-filter after status count (status was already applied to f)
     // Result info
     document.getElementById('aptResultInfo').textContent=f.length+' randevu bulundu';
 
