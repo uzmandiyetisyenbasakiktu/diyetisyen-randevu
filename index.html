@@ -444,7 +444,7 @@
     <div id="daySchedulePanel"></div>
     <div class="form-group"><label>Saat *</label><input type="time" id="aptTime"></div>
     <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="30">30 dk</option><option value="45">45 dk</option><option value="60" selected>60 dk</option><option value="90">90 dk</option></select></div>
-    <div class="form-group"><label>Randevu Turu</label><select id="aptType"><option value="ilk-gorusme">Ilk Gorusme</option><option value="kontrol">Kontrol</option><option value="olcum">Olcum</option><option value="online">Online Gorusme</option></select></div>
+    <div class="form-group"><label>Randevu Turu</label><select id="aptType"><option value="gorusme">Gorusme</option><option value="kontrol">Kontrol</option><option value="olcum">Olcum</option><option value="online">Online</option></select></div>
     <div class="form-group"><label>Durum</label><select id="aptStatus"><option value="bekliyor">Bekliyor</option><option value="geldi">Geldi</option><option value="gelmedi">Gelmedi</option><option value="iptal">Iptal</option></select></div>
     <div class="form-group"><label>Notlar</label><textarea id="aptNotes" placeholder="Randevu notlari..."></textarea></div>
     <input type="hidden" id="aptEditId">
@@ -700,7 +700,7 @@ function showDaySchedule(){
 function openNewAppointmentModal(){
     document.getElementById('aptModalTitle').textContent='Yeni Randevu';document.getElementById('aptEditId').value='';document.getElementById('aptPatient').value='';document.getElementById('aptPatientSearch').value='';
     document.getElementById('aptDate').value=new Date().toISOString().split('T')[0];document.getElementById('aptTime').value='09:00';document.getElementById('aptDuration').value='60';
-    document.getElementById('aptType').value='ilk-gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';showDaySchedule();openModal('appointmentModal');
+    document.getElementById('aptType').value='gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';showDaySchedule();openModal('appointmentModal');
 }
 function editAppointment(id){
     const apt=appointments.find(a=>a.id===id);if(!apt)return;
@@ -1214,7 +1214,7 @@ function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classLis
 // Sayfa yenilendiginde ayni sayfada kal
 function restorePage(){const saved=localStorage.getItem('currentPage');if(saved&&document.getElementById('page-'+saved)){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+saved).classList.add('active');document.querySelectorAll('.nav-menu li').forEach((li,i)=>{li.classList.remove('active');const pages=['dashboard','calendar','appointments','patients','settings'];if(pages[i]===saved)li.classList.add('active')});if(saved==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),200);if(saved==='profile'){const pid=localStorage.getItem('currentProfileId');if(pid)setTimeout(()=>renderProfilePage(pid),300)}}}
 // SETTINGS - Custom types with toggle
-const defaultTypes={'ilk-gorusme':'Ilk Gorusme','kontrol':'Kontrol','olcum':'Olcum','online':'Online'};
+const defaultTypes={'gorusme':'Gorusme','kontrol':'Kontrol','olcum':'Olcum','online':'Online'};
 function getDisabledTypes(){return JSON.parse(localStorage.getItem('disabledTypes')||'[]')}
 function getCustomTypes(){return JSON.parse(localStorage.getItem('customTypes')||'{}')}
 function getAllTypes(){const custom=getCustomTypes();return{...defaultTypes,...custom}}
@@ -1334,7 +1334,7 @@ function showToast(msg,type='success'){const c=document.getElementById('toastCon
 function getAptNum(apt){const pa=appointments.filter(a=>a.patientId===apt.patientId).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));return pa.findIndex(a=>a.id===apt.id)+1}
 function getLatestWeight(patientId){const pw=allWeights.filter(w=>w.patientId===patientId).sort((a,b)=>b.date.localeCompare(a.date));return pw.length?pw[0].weight:null}
 function getTypeName(t){const custom=JSON.parse(localStorage.getItem('customTypes')||'{}');return custom[t]||{'ilk-gorusme':'Ilk Gorusme','kontrol':'Kontrol','olcum':'Olcum','online':'Online'}[t]||t}
-function getTypeShort(t){const custom=JSON.parse(localStorage.getItem('customTypes')||'{}');if(custom[t])return custom[t];return{'ilk-gorusme':'Ilk G.','kontrol':'Kontrol','olcum':'Olcum','online':'Online'}[t]||t}
+function getTypeShort(t){const custom=JSON.parse(localStorage.getItem('customTypes')||'{}');if(custom[t])return custom[t];return{'gorusme':'Gor.','kontrol':'Kontrol','olcum':'Olcum','online':'Online'}[t]||t}
 function getStatusName(s){return{'bekliyor':'Bekliyor','geldi':'Geldi','gelmedi':'Gelmedi','iptal':'Iptal'}[s]||s}
 function formatDate(d){return new Date(d+'T00:00:00').toLocaleDateString('tr-TR',{day:'2-digit',month:'2-digit',year:'numeric'})}
 function getDayName(d){return new Date(d+'T00:00:00').toLocaleDateString('tr-TR',{weekday:'long'})}
