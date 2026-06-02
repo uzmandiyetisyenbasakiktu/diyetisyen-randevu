@@ -266,6 +266,14 @@
         .crop-circle{width:200px;height:200px;border-radius:50%;overflow:hidden;position:relative;border:3px solid var(--primary);cursor:grab;background:var(--bg-input);touch-action:none}
         .crop-circle:active{cursor:grabbing}
         .crop-circle img{position:absolute;user-select:none;-webkit-user-drag:none;min-width:100%;min-height:100%}
+        /* Day schedule in appointment modal */
+        .day-schedule{background:var(--bg-input);border-radius:12px;padding:12px;margin-bottom:16px;max-height:150px;overflow-y:auto}
+        .day-schedule-title{font-size:11px;color:var(--text-muted);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+        .day-schedule-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;margin-bottom:4px;font-size:12px;background:rgba(108,99,255,0.06)}
+        .day-schedule-item .ds-time{font-weight:700;color:var(--primary-light);min-width:45px}
+        .day-schedule-item .ds-name{flex:1;font-weight:500}
+        .day-schedule-item .ds-dur{color:var(--text-muted);font-size:11px}
+        .day-schedule-empty{font-size:12px;color:var(--success);font-weight:500}
         /* Grouped appointment list */
         .apt-day-group{margin-bottom:16px;padding:16px;background:var(--bg-card);border:1px solid var(--border);border-radius:16px}
         .apt-day-header{display:inline-flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 16px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));border-radius:12px;border-left:3px solid var(--primary)}
@@ -365,7 +373,8 @@
 <div class="modal-overlay" id="appointmentModal"><div class="modal">
     <div class="modal-title"><span id="aptModalTitle">Yeni Randevu</span><button class="modal-close" onclick="closeModal('appointmentModal')">&times;</button></div>
     <div class="form-group"><label>Hasta *</label><div class="searchable-select" id="patientSelectWrapper"><div class="patient-search-wrap"><svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="aptPatientSearch" placeholder="Hasta ara..." autocomplete="off" oninput="filterPatientDropdown()" onfocus="showPatientDropdown()" class="patient-search-input"><svg class="chevron" id="patientChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><input type="hidden" id="aptPatient"><div class="dropdown-list" id="patientDropdown"></div></div></div>
-    <div class="form-group"><label>Tarih *</label><input type="date" id="aptDate"></div>
+    <div class="form-group"><label>Tarih *</label><input type="date" id="aptDate" onchange="showDaySchedule()"></div>
+    <div id="daySchedulePanel"></div>
     <div class="form-group"><label>Saat *</label><input type="time" id="aptTime"></div>
     <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="30">30 dk</option><option value="45">45 dk</option><option value="60" selected>60 dk</option><option value="90">90 dk</option></select></div>
     <div class="form-group"><label>Randevu Turu</label><select id="aptType"><option value="ilk-gorusme">Ilk Gorusme</option><option value="kontrol">Kontrol</option><option value="olcum">Olcum</option><option value="online">Online Gorusme</option></select></div>
@@ -388,7 +397,7 @@
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('patientModal')">Iptal</button><button class="btn btn-primary" onclick="savePatient()">Kaydet</button></div>
 </div></div>
 <div class="modal-overlay" id="patientDetailModal"><div class="modal" style="max-width:600px">
-    <div class="modal-title"><span>Hasta Detay</span><button class="modal-close" onclick="closeModal('patientDetailModal')">&times;</button></div>
+    <div class="modal-title"><span>Hasta Profili</span><button class="modal-close" onclick="closeModal('patientDetailModal')">&times;</button></div>
     <div id="patientDetailHeader"></div>
     <div class="detail-tabs">
         <button class="detail-tab active" onclick="switchDetailTab('genel',this)">Genel</button>
@@ -566,10 +575,27 @@ function renderAppointments(){
     pg.innerHTML=`<button class="apt-page-btn ${aptPage===0?'disabled':''}" onclick="aptPage--;renderAppointments()">&#9664; Onceki</button><span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center">${aptPage+1} / ${totalPages}</span><button class="apt-page-btn ${aptPage>=totalPages-1?'disabled':''}" onclick="aptPage++;renderAppointments()">Sonraki &#9654;</button>`;
 }
 
+function addAppointmentForPatient(patientId){
+    const p=patients.find(x=>x.id===patientId);if(!p)return;
+    closeModal('patientDetailModal');
+    openNewAppointmentModal();
+    document.getElementById('aptPatient').value=patientId;
+    document.getElementById('aptPatientSearch').value=p.name;
+}
+function showDaySchedule(){
+    const date=document.getElementById('aptDate').value;
+    const panel=document.getElementById('daySchedulePanel');
+    if(!date){panel.innerHTML='';return}
+    const dayApts=appointments.filter(a=>a.date===date).sort((a,b)=>a.time.localeCompare(b.time));
+    const editId=document.getElementById('aptEditId').value;
+    const filtered=dayApts.filter(a=>a.id!==editId);
+    if(!filtered.length){panel.innerHTML=`<div class="day-schedule"><div class="day-schedule-empty">Bu gun bos - randevu yok</div></div>`;return}
+    panel.innerHTML=`<div class="day-schedule"><div class="day-schedule-title">Bu gunun programi (${filtered.length} randevu)</div>${filtered.map(a=>{const p=patients.find(x=>x.id===a.patientId);return`<div class="day-schedule-item"><span class="ds-time">${a.time}</span><span class="ds-name">${p?p.name:'?'}</span><span class="ds-dur">${a.duration} dk</span></div>`}).join('')}</div>`;
+}
 function openNewAppointmentModal(){
     document.getElementById('aptModalTitle').textContent='Yeni Randevu';document.getElementById('aptEditId').value='';document.getElementById('aptPatient').value='';document.getElementById('aptPatientSearch').value='';
     document.getElementById('aptDate').value=new Date().toISOString().split('T')[0];document.getElementById('aptTime').value='09:00';document.getElementById('aptDuration').value='60';
-    document.getElementById('aptType').value='ilk-gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';openModal('appointmentModal');
+    document.getElementById('aptType').value='ilk-gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';showDaySchedule();openModal('appointmentModal');
 }
 function editAppointment(id){
     const apt=appointments.find(a=>a.id===id);if(!apt)return;
@@ -577,7 +603,7 @@ function editAppointment(id){
     document.getElementById('aptPatient').value=apt.patientId;
     const ap=patients.find(p=>p.id===apt.patientId);document.getElementById('aptPatientSearch').value=ap?ap.name:'';
     document.getElementById('aptDate').value=apt.date;document.getElementById('aptTime').value=apt.time;document.getElementById('aptDuration').value=apt.duration;
-    document.getElementById('aptType').value=apt.type;document.getElementById('aptStatus').value=apt.status;document.getElementById('aptNotes').value=apt.notes||'';openModal('appointmentModal');
+    document.getElementById('aptType').value=apt.type;document.getElementById('aptStatus').value=apt.status;document.getElementById('aptNotes').value=apt.notes||'';showDaySchedule();openModal('appointmentModal');
 }
 async function saveAppointment(){
     const pid=document.getElementById('aptPatient').value,date=document.getElementById('aptDate').value,time=document.getElementById('aptTime').value;
@@ -732,9 +758,10 @@ function showPatientDetail(id){
     const p=patients.find(x=>x.id===id);if(!p)return;
     const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;
     // Header
-    document.getElementById('patientDetailHeader').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><span class="patient-status-badge pstatus-${st}" style="margin-top:8px">${stName}</span><p style="color:var(--text-muted);font-size:13px;margin-top:8px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>`;
+    const lw=getLatestWeight(id);
+    document.getElementById('patientDetailHeader').innerHTML=`<div class="text-center mb-16"><div class="patient-avatar" style="width:80px;height:80px;font-size:32px;margin:0 auto 12px;border-radius:20px">${p.photo?`<img src="${p.photo}" alt="${p.name}">`:p.name.charAt(0).toUpperCase()}</div><h3>${p.name}</h3><span class="patient-status-badge pstatus-${st}" style="margin-top:8px">${stName}</span>${lw?`<p style="color:var(--primary-light);font-size:14px;font-weight:600;margin-top:8px">${lw} kg</p>`:''}<p style="color:var(--text-muted);font-size:13px;margin-top:4px">${p.phone||''} ${p.email?'| '+p.email:''}</p>${p.birthdate?`<p style="color:var(--text-muted);font-size:12px">Dogum: ${formatDate(p.birthdate)}</p>`:''}</div>`;
     // Actions
-    document.getElementById('patientDetailActions').innerHTML=`<div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-sm" style="background:linear-gradient(135deg,var(--primary),#a78bfa);color:white" onclick="editPatient('${id}')">Duzenle</button></div>`;
+    document.getElementById('patientDetailActions').innerHTML=`<div class="modal-actions"><button class="btn btn-danger btn-sm" onclick="deletePatient('${id}')">Sil</button><button class="btn btn-sm" style="background:linear-gradient(135deg,var(--primary),#a78bfa);color:white" onclick="editPatient('${id}')">Duzenle</button><button class="btn btn-success btn-sm" onclick="addAppointmentForPatient('${id}')">+ Randevu Ekle</button></div>`;
     // Genel tab
     renderGenelTab(id);
     // Kilo tab
@@ -978,7 +1005,10 @@ async function renderCalendar(){
         const p=patients.find(p=>p.id===a.patientId);
         const colors={bekliyor:'linear-gradient(135deg,#6C63FF,#a78bfa)',geldi:'linear-gradient(135deg,#4ECB71,#2ecc71)',gelmedi:'linear-gradient(135deg,#FF6B6B,#ee5a24)',iptal:'linear-gradient(135deg,#555,#777)'};
         const bgColors={bekliyor:'#6C63FF',geldi:'#4ECB71',gelmedi:'#FF6B6B',iptal:'#666'};
-        return{id:a.id,title:`${p?p.name:'?'} ${a.time}`,start:a.date+'T'+a.time,backgroundColor:bgColors[a.status]||'#6C63FF',borderColor:'transparent',classNames:['evt-'+a.status],
+        const dur=parseInt(a.duration)||60;const [hh,mm]=(a.time||'09:00').split(':').map(Number);
+        const endH=hh+Math.floor((mm+dur)/60);const endM=(mm+dur)%60;
+        const endTime=String(endH).padStart(2,'0')+':'+String(endM).padStart(2,'0');
+        return{id:a.id,title:`${p?p.name:'?'} ${a.time}`,start:a.date+'T'+a.time,end:a.date+'T'+endTime,backgroundColor:bgColors[a.status]||'#6C63FF',borderColor:'transparent',classNames:['evt-'+a.status],
             extendedProps:{patientName:p?p.name:'?',type:getTypeName(a.type),typeShort:getTypeShort(a.type),duration:a.duration,status:a.status,time:a.time,weight:getLatestWeight(a.patientId)}};
     });
     if(calendarInstance){calendarInstance.removeAllEvents();calendarInstance.addEventSource(evts);return}
