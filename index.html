@@ -95,50 +95,56 @@
         .status-gelmedi{background:rgba(255,107,107,0.15);color:var(--danger)}
         .status-iptal{background:rgba(136,136,170,0.15);color:var(--text-muted)}
         /* CALENDAR */
-        .fc{background:linear-gradient(180deg,rgba(22,22,42,0.9),rgba(16,16,32,0.95));backdrop-filter:blur(16px);border-radius:20px;padding:24px;border:1px solid var(--border);box-shadow:0 8px 40px rgba(0,0,0,0.2)}
+        .fc{background:rgba(255,255,255,0.97);backdrop-filter:blur(16px);border-radius:20px;padding:24px;border:1px solid rgba(0,0,0,0.08);box-shadow:var(--el-2);color:#1a1a2e}
         .fc .fc-toolbar{flex-wrap:wrap;gap:10px;margin-bottom:20px !important}
-        .fc .fc-toolbar-title{font-size:22px !important;color:var(--text);font-weight:700;letter-spacing:-0.3px}
-        .fc .fc-button-group{border-radius:12px !important;overflow:hidden;border:1px solid var(--border) !important}
+        .fc .fc-toolbar-title{font-size:22px !important;color:#1a1a2e;font-weight:700;letter-spacing:-0.3px}
+        .fc .fc-button-group{border-radius:12px !important;overflow:hidden;border:1px solid rgba(108,99,255,0.2) !important}
         .fc .fc-button-group .fc-button{border-radius:0 !important;border:none !important}
-        .fc .fc-button{background:rgba(30,30,56,0.8) !important;border:1px solid var(--border) !important;color:var(--text-muted) !important;font-size:13px !important;border-radius:12px !important;padding:10px 18px !important;transition:all 0.25s !important;font-weight:500 !important}
-        .fc .fc-button:hover{background:rgba(108,99,255,0.2) !important;color:var(--text) !important}
+        .fc .fc-button{background:white !important;border:1px solid rgba(108,99,255,0.15) !important;color:#555 !important;font-size:13px !important;border-radius:12px !important;padding:10px 18px !important;transition:all 0.25s !important;font-weight:600 !important}
+        .fc .fc-button:hover{background:rgba(108,99,255,0.06) !important;color:var(--primary) !important}
         .fc .fc-button-active{background:linear-gradient(135deg,var(--primary),#a78bfa) !important;border-color:transparent !important;color:white !important;box-shadow:0 4px 15px rgba(108,99,255,0.35) !important}
-        .fc .fc-col-header{background:rgba(20,20,40,0.9)}
-        .fc .fc-col-header-cell{padding:14px 0 !important;border-color:rgba(108,99,255,0.15) !important}
-        .fc .fc-col-header-cell-cushion{color:var(--text-muted);font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;text-decoration:none !important}
-        .fc .fc-daygrid-day{background:rgba(10,10,22,0.3);border-color:rgba(108,99,255,0.15) !important;transition:none}
-        .fc .fc-daygrid-day:hover{background:rgba(10,10,22,0.3) !important}
+        .fc .fc-col-header{background:rgba(108,99,255,0.03)}
+        .fc .fc-col-header-cell{padding:12px 0 !important;border-color:rgba(0,0,0,0.06) !important}
+        .fc .fc-col-header-cell-cushion{color:#555;font-size:12px;font-weight:600;text-decoration:none !important}
+        .fc .fc-daygrid-day{background:white;border-color:rgba(0,0,0,0.06) !important}
+        .fc .fc-day-other{background:rgba(0,0,0,0.02)}.fc .fc-day-other .fc-daygrid-day-number{color:#bbb}
         .fc .fc-daygrid-day-frame{min-height:120px;position:relative}
         .fc .fc-daygrid-day-frame::after{content:'';position:absolute;inset:2px;border-radius:8px;background:transparent;transition:background 0.2s;pointer-events:none;z-index:0}
-        .fc .fc-daygrid-day-frame:hover::after{background:rgba(108,99,255,0.12)}
-        .fc .fc-daygrid-day-number{color:var(--text-muted);font-size:13px;padding:8px 10px;font-weight:500;text-decoration:none !important;position:relative;z-index:1}
+        .fc .fc-daygrid-day-frame:hover::after{background:rgba(108,99,255,0.05)}
+        .fc .fc-daygrid-day-number{color:#333;font-size:13px;padding:8px 10px;font-weight:500;text-decoration:none !important;position:relative;z-index:1}
         .fc .fc-daygrid-day-events{position:relative;z-index:1}
-        .fc .fc-day-today{background:rgba(108,99,255,0.04) !important}
-        .fc .fc-day-today .fc-daygrid-day-frame::after{background:rgba(108,99,255,0.08)}
-        .fc .fc-day-today .fc-daygrid-day-frame:hover::after{background:rgba(108,99,255,0.18)}
-        .fc .fc-day-today .fc-daygrid-day-number{color:var(--primary-light);font-weight:700}
-        .fc .fc-day-other .fc-daygrid-day-number{color:rgba(136,136,170,0.3)}
-        .fc .fc-event{border:none !important;border-radius:8px !important;padding:0 !important;margin:2px 4px !important;cursor:pointer;transition:all 0.25s;overflow:hidden}
-        .fc .fc-event:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.3);filter:brightness(1.1)}
-        .fc .fc-event .fc-event-main{padding:0}
+        .fc .fc-day-today{background:rgba(108,99,255,0.06) !important}
+        .fc .fc-day-today .fc-daygrid-day-number{color:var(--primary);font-weight:700}
+        .fc .fc-event{border:1px solid rgba(255,255,255,0.2) !important;border-radius:8px !important;padding:0 !important;margin:2px 4px !important;cursor:grab;transition:all 0.25s;overflow:hidden}
+        .fc .fc-event:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,0.15);border-color:rgba(255,255,255,0.4) !important}
+        .fc .fc-event-dragging{opacity:0.85;box-shadow:0 8px 24px rgba(0,0,0,0.2) !important;cursor:grabbing}
+        .fc .fc-event .fc-event-main{padding:0;color:white}
         .evt-card{display:flex;align-items:stretch;min-height:28px}
         .evt-left{padding:4px 8px;display:flex;flex-direction:column;justify-content:center;flex:1;min-width:0}
         .evt-left .evt-name{font-weight:700;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
         .evt-left .evt-time{font-weight:500;font-size:10px;opacity:0.8}
         .evt-divider{width:1px;background:rgba(255,255,255,0.25);margin:4px 0}
         .evt-right{padding:4px 8px;display:flex;align-items:center;font-size:9px;font-weight:600;opacity:0.85;white-space:nowrap;letter-spacing:0.3px;text-transform:uppercase}
-        .fc td,.fc th{border-color:rgba(108,99,255,0.15) !important}
-        .fc .fc-scrollgrid{border-color:rgba(108,99,255,0.15) !important;border-radius:14px;overflow:hidden;border:none !important}
+        .fc td,.fc th{border-color:rgba(0,0,0,0.06) !important}
+        .fc .fc-scrollgrid{border-color:rgba(0,0,0,0.06) !important;border-radius:14px;overflow:hidden;border:none !important}
         .fc .fc-scrollgrid-section>td{border:none !important}
         .fc .fc-scrollgrid-section>th{border:none !important}
-        .fc .fc-timegrid-slot{height:55px !important}
-        .fc .fc-timegrid-slot-label{color:var(--text-muted);font-size:12px}
-        .fc .fc-more-link{color:var(--primary-light) !important;font-weight:700;font-size:11px;padding:4px 8px;background:rgba(108,99,255,0.12);border-radius:8px;margin:2px 4px;text-decoration:none !important}
+        .fc .fc-timegrid-slot{height:40px !important}
+        .fc .fc-timegrid-slot-label{color:#888;font-size:11px;font-weight:500}
+        .fc .fc-timegrid-slot-lane{border-color:rgba(0,0,0,0.04) !important}
+        .fc .fc-timegrid-col{border-color:rgba(0,0,0,0.06) !important}
+        .fc .fc-timegrid-event{border-radius:8px !important;box-shadow:0 2px 6px rgba(0,0,0,0.1)}
+        .fc .fc-timegrid-event:hover{box-shadow:0 4px 12px rgba(0,0,0,0.15)}
+        .fc .fc-timegrid-event .fc-event-main{padding:4px 8px;color:white}
+        .fc .fc-timegrid-now-indicator-line{border-color:#ef4444 !important;border-width:2px !important}
+        .fc .fc-timegrid-now-indicator-arrow{border-color:#ef4444 !important}
+        .fc .fc-more-link{color:var(--primary) !important;font-weight:700;font-size:11px;padding:4px 8px;background:rgba(108,99,255,0.12);border-radius:8px;margin:2px 4px;text-decoration:none !important}
         .fc .fc-more-link:hover{background:rgba(108,99,255,0.25)}
         .fc .evt-bekliyor{background:linear-gradient(135deg,#6C63FF,#a78bfa) !important}
         .fc .evt-geldi{background:linear-gradient(135deg,#22c55e,#4ade80) !important}
         .fc .evt-gelmedi{background:linear-gradient(135deg,#ef4444,#f97316) !important}
-        .fc .evt-iptal{background:linear-gradient(135deg,#4b5563,#6b7280) !important}
+        .fc .evt-iptal{background:linear-gradient(135deg,#9ca3af,#6b7280) !important}
+        .fc .fc-timegrid-axis{color:#888;font-size:11px}
         /* MODAL */
         .modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);backdrop-filter:blur(4px);z-index:9000;justify-content:center;align-items:center;padding:20px}
         .modal-overlay.active{display:flex}
@@ -653,12 +659,13 @@ function addAppointmentForPatient(patientId){
     document.getElementById('aptPatient').value=patientId;
     document.getElementById('aptPatientSearch').value=p.name;
 }
+function localDateStr(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
 function shiftWeek(dir){
     const date=document.getElementById('aptDate').value;
     if(!date)return;
-    const d=new Date(date+'T00:00:00');
+    const d=new Date(date+'T12:00:00');
     d.setDate(d.getDate()+(dir*7));
-    document.getElementById('aptDate').value=d.toISOString().split('T')[0];
+    document.getElementById('aptDate').value=localDateStr(d);
     showDaySchedule();
 }
 function showDaySchedule(){
@@ -666,16 +673,16 @@ function showDaySchedule(){
     const panel=document.getElementById('daySchedulePanel');
     if(!date){panel.innerHTML='';return}
     const editId=document.getElementById('aptEditId').value;
-    const today=new Date().toISOString().split('T')[0];
+    const today=localDateStr(new Date());
     // Mini week view
-    const selDate=new Date(date+'T00:00:00');
+    const selDate=new Date(date+'T12:00:00');
     const dayOfWeek=selDate.getDay();
     const monday=new Date(selDate);monday.setDate(selDate.getDate()-dayOfWeek+(dayOfWeek===0?-6:1));
     const dayNames=['PZT','SAL','CAR','PER','CUM','CMT','PAZ'];
     let weekHtml='<div style="display:flex;align-items:center;gap:4px;margin-bottom:12px"><button class="mw-arrow" onclick="shiftWeek(-1)">&#9664;</button><div class="mini-week">';
     for(let i=0;i<7;i++){
         const d=new Date(monday);d.setDate(monday.getDate()+i);
-        const ds=d.toISOString().split('T')[0];
+        const ds=localDateStr(d);
         const cnt=appointments.filter(a=>a.date===ds&&a.id!==editId).length;
         const isActive=ds===date;
         const isToday=ds===today;
@@ -1131,16 +1138,36 @@ async function renderCalendar(){
     });
     if(calendarInstance){calendarInstance.removeAllEvents();calendarInstance.addEventSource(evts);return}
     calendarInstance=new FullCalendar.Calendar(calEl,{
-        initialView:'dayGridMonth',locale:'tr',
+        initialView:'timeGridWeek',locale:'tr',
+        firstDay:1,
+        nowIndicator:true,
         headerToolbar:{left:'prev,next today',center:'title',right:'dayGridMonth,timeGridWeek,timeGridDay'},
         buttonText:{today:'Bugun',month:'Ay',week:'Hafta',day:'Gun'},
         height:'auto',events:evts,
+        slotMinTime:'08:00:00',
+        slotMaxTime:'21:00:00',
+        slotDuration:'00:30:00',
+        slotLabelInterval:'00:30:00',
+        slotLabelFormat:{hour:'2-digit',minute:'2-digit',hour12:false},
+        allDaySlot:false,
+        editable:true,
+        eventDurationEditable:false,
+        eventOverlap:false,
+        slotEventOverlap:false,
         eventContent:function(arg){
             const ep=arg.event.extendedProps;
             return{html:`<div class="evt-card"><div class="evt-left"><span class="evt-name">${ep.patientName}</span><span class="evt-time">${ep.time}${ep.weight?' &middot; '+ep.weight+'kg':''}</span></div><div class="evt-divider"></div><div class="evt-right">${ep.typeShort}</div></div>`};
         },
         dateClick:function(info){showDayModal(info.dateStr)},
         eventClick:function(info){info.jsEvent.stopPropagation();showAptQuickModal(info.event.id)},
+        eventDrop:async function(info){
+            const apt=appointments.find(a=>a.id===info.event.id);if(!apt)return;
+            const s=info.event.start;
+            const newDate=localDateStr(s);
+            const newTime=String(s.getHours()).padStart(2,'0')+':'+String(s.getMinutes()).padStart(2,'0');
+            try{await db.collection('appointments').doc(info.event.id).update({date:newDate,time:newTime,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});showToast('Randevu taşındı: '+newDate+' '+newTime,'success')}
+            catch(e){info.revert();showToast('Hata: '+e.message,'error')}
+        },
         dayMaxEvents:2,
         moreLinkClick:function(info){showDayModal(info.date.toISOString().split('T')[0]);return'none'},
         eventOrder:'start'
