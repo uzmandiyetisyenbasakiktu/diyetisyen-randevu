@@ -443,7 +443,7 @@
     <div class="form-group"><label>Tarih *</label><input type="date" id="aptDate" onchange="showDaySchedule()"></div>
     <div id="daySchedulePanel"></div>
     <div class="form-group"><label>Saat *</label><input type="time" id="aptTime"></div>
-    <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="30">30 dk</option><option value="45">45 dk</option><option value="60" selected>60 dk</option><option value="90">90 dk</option></select></div>
+    <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="30" selected>30 dk</option><option value="45">45 dk</option><option value="60">60 dk</option><option value="90">90 dk</option></select></div>
     <div class="form-group"><label>Randevu Turu</label><select id="aptType"><option value="gorusme">Gorusme</option><option value="kontrol">Kontrol</option><option value="olcum">Olcum</option><option value="online">Online</option></select></div>
     <div class="form-group"><label>Durum</label><select id="aptStatus"><option value="bekliyor">Bekliyor</option><option value="geldi">Geldi</option><option value="gelmedi">Gelmedi</option><option value="iptal">Iptal</option></select></div>
     <div class="form-group"><label>Notlar</label><textarea id="aptNotes" placeholder="Randevu notlari..."></textarea></div>
@@ -699,7 +699,7 @@ function showDaySchedule(){
 }
 function openNewAppointmentModal(){
     document.getElementById('aptModalTitle').textContent='Yeni Randevu';document.getElementById('aptEditId').value='';document.getElementById('aptPatient').value='';document.getElementById('aptPatientSearch').value='';
-    document.getElementById('aptDate').value=new Date().toISOString().split('T')[0];document.getElementById('aptTime').value='09:00';document.getElementById('aptDuration').value='60';
+    document.getElementById('aptDate').value=new Date().toISOString().split('T')[0];document.getElementById('aptTime').value='09:00';document.getElementById('aptDuration').value='30';
     document.getElementById('aptType').value='gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';showDaySchedule();openModal('appointmentModal');
 }
 function editAppointment(id){
@@ -1086,7 +1086,7 @@ function showAptQuickModal(id){
     document.getElementById('aptQuickContent').innerHTML=`
         <div style="text-align:center;margin-bottom:20px">
             <div class="patient-avatar" style="width:56px;height:56px;font-size:22px;margin:0 auto 10px;border-radius:16px">${p&&p.photo?`<img src="${p.photo}" alt="${p.name}">`:((p?p.name:'?').charAt(0).toUpperCase())}</div>
-            <h3 style="font-size:18px;margin-bottom:4px">${p?p.name:'Bilinmeyen'}</h3>
+            <h3 style="font-size:18px;margin-bottom:4px;cursor:pointer;text-decoration:underline;text-decoration-color:rgba(108,99,255,0.3)" onclick="closeModal('aptQuickModal');showPatientDetail('${a.patientId}')">${p?p.name:'Bilinmeyen'}</h3>
             <span style="font-size:12px;font-weight:600;color:var(--primary);background:rgba(108,99,255,0.1);padding:3px 10px;border-radius:8px">${aptNum}. Gorusme</span>
             ${(()=>{const w=getLatestWeight(a.patientId);return w?`<p style="color:var(--primary-light);font-size:13px;font-weight:600;margin-top:4px">Guncel Kilo: ${w} kg</p>`:''})()}
         </div>
