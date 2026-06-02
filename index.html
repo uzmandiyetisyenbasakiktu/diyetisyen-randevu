@@ -623,8 +623,15 @@ function renderAppointments(){
     const el=document.getElementById('aptGroupedList');
     if(!f.length){el.innerHTML='<div class="empty-state"><p>Randevu bulunamadi</p></div>';document.getElementById('aptPagination').innerHTML='';return}
 
-    let html='';let firstGroup=true;
+    let html='';let firstGroup=true;let lastMonth='';
     Object.entries(groups).forEach(([date,apts])=>{
+        const monthKey=date.slice(0,7);
+        if(monthKey!==lastMonth){
+            const mDate=new Date(date+'T12:00:00');
+            const monthName=mDate.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+            html+=`<div style="display:flex;align-items:center;gap:12px;margin:${lastMonth?'24px':'0'} 0 12px"><div style="font-size:14px;font-weight:700;color:var(--primary);text-transform:capitalize;white-space:nowrap">${monthName}</div><div style="flex:1;height:1px;background:var(--border)"></div></div>`;
+            lastMonth=monthKey;
+        }
         const isOpen=firstGroup;
         const gid='adg_'+date.replace(/-/g,'');
         html+=`<div class="apt-day-group"><div class="apt-day-header" onclick="toggleDayGroup('${gid}')"><span class="adh-arrow ${isOpen?'open':''}">&#9654;</span><div style="flex:1"><div class="adh-date">${formatDate(date)}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div><div class="apt-day-body ${isOpen?'open':''}" id="${gid}">`;
