@@ -338,10 +338,15 @@
         /* Grouped appointment list */
         .apt-day-group{margin-bottom:16px;padding:18px;background:var(--bg-card);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:18px;box-shadow:var(--el-1);transition:all 0.3s var(--ease)}
         .apt-day-group:hover{box-shadow:var(--el-2)}
-        .apt-day-header{display:inline-flex;align-items:center;gap:12px;margin-bottom:10px;padding:10px 16px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));border-radius:12px;border-left:3px solid var(--primary)}
+        .apt-day-header{display:flex;align-items:center;gap:12px;padding:12px 16px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.04));border-radius:12px;border-left:3px solid var(--primary);cursor:pointer;transition:all 0.2s var(--ease);user-select:none}
+        .apt-day-header:hover{background:linear-gradient(135deg,rgba(108,99,255,0.15),rgba(108,99,255,0.06))}
+        .apt-day-header .adh-arrow{font-size:12px;color:var(--primary);transition:transform 0.3s var(--ease);flex-shrink:0}
+        .apt-day-header .adh-arrow.open{transform:rotate(90deg)}
         .apt-day-header .adh-date{font-size:15px;font-weight:700;color:var(--text);flex:1}
         .apt-day-header .adh-count{font-size:12px;color:var(--primary-light);font-weight:600;background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:10px}
         .apt-day-header .adh-day{font-size:12px;color:var(--text-muted);font-weight:500}
+        .apt-day-body{overflow:hidden;transition:max-height 0.3s var(--ease);max-height:0}
+        .apt-day-body.open{max-height:2000px}
         .apt-day-empty{padding:12px 16px;color:var(--text-muted);font-size:13px;font-style:italic}
         .apt-list-item{display:flex;align-items:center;padding:12px 16px;border-radius:12px;margin-bottom:6px;background:var(--bg-input);gap:12px;cursor:pointer;transition:all 0.25s var(--ease);border:1px solid transparent;box-shadow:0 1px 4px rgba(0,0,0,0.1)}
         .apt-list-item:hover{border-color:rgba(108,99,255,0.2);background:rgba(108,99,255,0.06);transform:translateX(4px) translateY(-1px);box-shadow:var(--el-1)}
@@ -632,19 +637,22 @@ function renderAppointments(){
     const el=document.getElementById('aptGroupedList');
     if(!f.length){el.innerHTML='<div class="empty-state"><p>Randevu bulunamadi</p></div>';document.getElementById('aptPagination').innerHTML='';return}
 
-    let html='';
+    let html='';let firstGroup=true;
     Object.entries(groups).forEach(([date,apts])=>{
-        html+=`<div class="apt-day-group"><div class="apt-day-header"><div><div class="adh-date">${formatDate(date)}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div>`;
+        const isOpen=firstGroup;
+        const gid='adg_'+date.replace(/-/g,'');
+        html+=`<div class="apt-day-group"><div class="apt-day-header" onclick="toggleDayGroup('${gid}')"><span class="adh-arrow ${isOpen?'open':''}">&#9654;</span><div style="flex:1"><div class="adh-date">${formatDate(date)}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div><div class="apt-day-body ${isOpen?'open':''}" id="${gid}">`;
         apts.forEach(a=>{
             const p=patients.find(p=>p.id===a.patientId);
             const w=getLatestWeight(a.patientId);const anum=getAptNum(a);
-            html+=`<div class="apt-list-item" onclick="showAptQuickModal('${a.id}')">
+            html+=`<div class="apt-list-item" onclick="showAptQuickModal('${a.id}')" style="margin-top:8px">
                 <div class="apt-list-time">${a.time}</div>
                 <div class="apt-list-info"><div class="apt-list-name">${p?p.name:'?'} <span style="font-size:11px;color:var(--primary);font-weight:600">(${anum}. G.)</span></div><div class="apt-list-meta">${getTypeName(a.type)} - ${a.duration} dk${w?' &middot; '+w+' kg':''}</div></div>
                 <span class="apt-status status-${a.status}">${getStatusName(a.status)}</span>
             </div>`;
         });
-        html+=`</div>`;
+        html+=`</div></div>`;
+        firstGroup=false;
     });
     el.innerHTML=html;
 
@@ -1325,6 +1333,13 @@ function initTheme(){
     updateThemeLabel();
 }
 initTheme();
+
+function toggleDayGroup(id){
+    const body=document.getElementById(id);
+    const arrow=body.parentElement.querySelector('.adh-arrow');
+    body.classList.toggle('open');
+    arrow.classList.toggle('open');
+}
 
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('overlay').classList.toggle('active')}
 function openModal(id){document.getElementById(id).classList.add('active')}
