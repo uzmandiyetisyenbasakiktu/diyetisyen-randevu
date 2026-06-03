@@ -400,7 +400,7 @@
         <div id="page-dashboard" class="page active">
             <div class="header"><div class="flex items-center gap-8"><button class="hamburger" onclick="toggleSidebar()">&#9776;</button><h1>Ana Sayfa</h1></div><div class="header-actions"><button class="btn btn-primary btn-sm" onclick="openNewAppointmentModal()">+ Yeni Randevu</button></div></div>
             <div class="stats-grid">
-                <div class="stat-card" onclick="goToPage('appointments','today')"><div class="stat-icon">&#128197;</div><div class="stat-label">Bugunun Randevulari</div><div class="stat-value" id="statToday">0</div></div>
+                <div class="stat-card" onclick="goToPage('patients','bugun')"><div class="stat-icon">&#128197;</div><div class="stat-label">Bugunun Danisanlari</div><div class="stat-value" id="statToday">0</div></div>
                 <div class="stat-card" onclick="goToPage('calendar')"><div class="stat-icon">&#128198;</div><div class="stat-label">Bu Haftaki Randevular</div><div class="stat-value" id="statWeek">0</div></div>
                 <div class="stat-card" onclick="goToPage('patients')"><div class="stat-icon">&#128101;</div><div class="stat-label">Aktif Hasta</div><div class="stat-value" id="statPatients">0</div></div>
                 <div class="stat-card" onclick="showNoShowList()"><div class="stat-icon">&#10060;</div><div class="stat-label">Gelmeyen (Bu Ay)</div><div class="stat-value" id="statNoShow">0</div></div>
@@ -1265,9 +1265,12 @@ function goToPage(page,filter){
     if(page==='appointments'&&filter){
         document.getElementById('aptSearch').value='';
         aptPage=0;
-        if(filter==='today'){aptDateFilter='today';currentFilter='all'}
-        else if(filter==='gelmedi'){aptDateFilter='thisMonth';currentFilter='gelmedi'}
+        if(filter==='today'){aptDateFilter='today'}
         renderAppointments();
+    }
+    if(page==='patients'&&filter){
+        patientFilter=filter;
+        renderPatients();
     }
     if(page==='calendar'&&calendarInstance)setTimeout(()=>calendarInstance.updateSize(),100);
     document.getElementById('sidebar').classList.remove('open');
