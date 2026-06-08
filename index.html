@@ -769,7 +769,7 @@ function renderAppointments(){
         }
         const isToday=date===today;
         const gid='adg_'+date.replace(/-/g,'');
-        html+=`<div class="apt-day-group"><div class="apt-day-header" onclick="toggleDayGroup('${gid}')"><span class="adh-arrow">&#9654;</span><div style="flex:1"><div class="adh-date">${formatDate(date)}${isToday?' <span style="font-size:11px;background:var(--primary);color:white;padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:middle">Bugun</span>':''}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div><div class="apt-day-body" id="${gid}">`;
+        html+=`<div class="apt-day-group"><div class="apt-day-header" onclick="toggleDayGroup('${gid}')"><span class="adh-arrow">&#9654;</span><div style="flex:1"><div class="adh-day">${getDayName(date)}${isToday?' <span style="font-size:11px;background:var(--primary);color:white;padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:middle">Bugun</span>':''}</div><div class="adh-date">${formatDate(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div><div class="apt-day-body" id="${gid}">`;
         apts.forEach(a=>{
             const p=patients.find(p=>p.id===a.patientId);
             const w=getLatestWeight(a.patientId);const anum=getAptNum(a);
