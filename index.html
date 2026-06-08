@@ -396,8 +396,8 @@
         [data-theme="light"] .reminder-box.reminder-red{background:rgba(255,107,107,0.06)}
         /* Dashboard timeline */
         .timeline-item{display:flex;align-items:stretch;gap:0;margin-bottom:0}
-        .timeline-time{min-width:56px;padding:12px 0;text-align:right;position:relative}
-        .timeline-time span{font-size:14px;font-weight:700;color:var(--primary-light)}
+        .timeline-time{min-width:60px;padding:12px 0;text-align:right;position:relative}
+        .timeline-time span{font-size:16px;font-weight:800;color:var(--primary-light);letter-spacing:-0.3px}
         .timeline-line{width:32px;display:flex;flex-direction:column;align-items:center;padding:0;position:relative}
         .timeline-dot{width:10px;height:10px;border-radius:50%;background:var(--primary);margin-top:16px;z-index:1;flex-shrink:0}
         .timeline-dot.dot-geldi{background:var(--success)}
@@ -409,9 +409,10 @@
         .timeline-card .tc-name{font-size:14px;font-weight:600}
         .timeline-card .tc-meta{font-size:12px;color:var(--text-muted);margin-top:2px}
         .dash-day-group{margin-bottom:12px}
-        .dash-day-label{font-size:13px;font-weight:700;color:var(--text);margin-bottom:8px;display:flex;align-items:center;gap:8px}
-        .dash-day-label .ddl-day{color:var(--primary-light)}
-        .dash-day-label .ddl-count{font-size:11px;color:var(--text-muted);font-weight:500}
+        .dash-day-label{margin-bottom:10px;padding:10px 14px;background:linear-gradient(135deg,rgba(108,99,255,0.1),rgba(108,99,255,0.03));border-radius:12px;border-left:3px solid var(--primary);display:flex;align-items:center;gap:10px}
+        .dash-day-label .ddl-day{font-size:15px;font-weight:700;color:var(--primary-light)}
+        .dash-day-label .ddl-date{font-size:15px;font-weight:700;color:var(--text)}
+        .dash-day-label .ddl-count{font-size:12px;color:var(--text-muted);font-weight:600;margin-left:auto;background:rgba(108,99,255,0.15);padding:3px 10px;border-radius:8px}
         .dash-day-items{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px}
         .dash-apt-card{padding:10px 14px;border-radius:12px;background:var(--bg-input);border:1px solid var(--border);cursor:pointer;transition:all 0.25s var(--ease)}
         .dash-apt-card:hover{border-color:rgba(108,99,255,0.25);transform:translateY(-2px);background:rgba(108,99,255,0.04)}
@@ -696,7 +697,7 @@ function renderDashboard(){
             const apts=dayGroups[date];
             const dayName=getDayName(date);
             const dateStr=formatDate(date).slice(0,5);
-            html+=`<div class="dash-day-group"><div class="dash-day-label"><span class="ddl-day">${dayName}</span> ${dateStr} <span class="ddl-count">(${apts.length} randevu)</span></div><div class="dash-day-items">`;
+            html+=`<div class="dash-day-group"><div class="dash-day-label"><span class="ddl-day">${dayName}</span><span class="ddl-date">${dateStr}</span><span class="ddl-count">${apts.length} randevu</span></div><div class="dash-day-items">`;
             apts.forEach(a=>{
                 const p=patients.find(p=>p.id===a.patientId);
                 html+=`<div class="dash-apt-card" onclick="showAptQuickModal('${a.id}')"><div class="dac-time">${a.time}</div><div class="dac-name">${p?p.name:'?'}</div><div class="dac-type">${getTypeName(a.type)} - ${a.duration} dk</div></div>`;
