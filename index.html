@@ -758,15 +758,22 @@ function renderAppointments(){
     if(!f.length){el.innerHTML='<div class="empty-state"><p>Randevu bulunamadi</p></div>';document.getElementById('aptPagination').innerHTML='';return}
     document.getElementById('aptPagination').innerHTML='';
 
-    let html='';let lastMonth='';
+    let html='';let lastMonth='';let lastWeek='';
     Object.entries(groups).forEach(([date,apts])=>{
         const monthKey=date.slice(0,7);
         if(monthKey!==lastMonth){
             const mDate=new Date(date+'T12:00:00');
             const monthName=mDate.toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
             html+=`<div style="display:flex;align-items:center;gap:12px;margin:${lastMonth?'24px':'0'} 0 12px"><div style="font-size:14px;font-weight:700;color:var(--primary);text-transform:capitalize;white-space:nowrap">${monthName}</div><div style="flex:1;height:1px;background:var(--border)"></div></div>`;
-            lastMonth=monthKey;
+            lastMonth=monthKey;lastWeek='';
         }
+        // Hafta ayiraci
+        const weekMon=getMonday(new Date(date+'T12:00:00'));
+        const weekKey=localDateStr(weekMon);
+        if(lastWeek&&weekKey!==lastWeek){
+            html+=`<div style="margin:14px 0;border-top:1px dashed var(--border)"></div>`;
+        }
+        lastWeek=weekKey;
         const isToday=date===today;
         const gid='adg_'+date.replace(/-/g,'');
         html+=`<div class="apt-day-group"><div class="apt-day-header" onclick="toggleDayGroup('${gid}')"><span class="adh-arrow">&#9654;</span><div style="flex:1"><div class="adh-day">${getDayName(date)}${isToday?' <span style="font-size:11px;background:var(--primary);color:white;padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:middle">Bugun</span>':''}</div><div class="adh-date">${formatDate(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div><div class="apt-day-body" id="${gid}">`;
