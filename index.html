@@ -771,7 +771,7 @@ function renderAppointments(){
         const weekMon=getMonday(new Date(date+'T12:00:00'));
         const weekKey=localDateStr(weekMon);
         if(lastWeek&&weekKey!==lastWeek){
-            html+=`<div style="margin:14px 0;border-top:1px dashed var(--border)"></div>`;
+            html+=`<div style="display:flex;align-items:center;gap:12px;margin:22px 0"><div style="flex:1;height:2px;background:var(--primary);opacity:0.5;border-radius:2px"></div><span style="font-size:12px;color:white;font-weight:700;white-space:nowrap;padding:6px 16px;background:linear-gradient(135deg,var(--primary),#a78bfa);border-radius:10px;box-shadow:0 2px 8px rgba(108,99,255,0.3)">Sonraki Hafta</span><div style="flex:1;height:2px;background:var(--primary);opacity:0.5;border-radius:2px"></div></div>`;
         }
         lastWeek=weekKey;
         const isToday=date===today;
