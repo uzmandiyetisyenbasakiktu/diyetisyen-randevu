@@ -654,7 +654,7 @@ function updateStats(){
     document.getElementById('statNoShow').textContent=appointments.filter(a=>a.date.startsWith(new Date().toISOString().slice(0,7))&&a.status==='gelmedi').length;
 }
 
-let aptDateFilter='thisWeek',aptPage=0;const APT_PER_PAGE=20;
+let aptDateFilter='thisWeek';
 
 function renderAppointments(){
     const search=document.getElementById('aptSearch').value.toLowerCase();
@@ -680,20 +680,17 @@ function renderAppointments(){
     const monS=mon.toISOString().split('T')[0],sunS=sun.toISOString().split('T')[0];
     const dateCounts={today:appointments.filter(a=>a.date===today).length,thisWeek:appointments.filter(a=>a.date>=monS&&a.date<=sunS).length,all:appointments.length};
     const dateBtns=[['today','Bugun'],['thisWeek','Bu Hafta'],['all','Tumu']];
-    dc.innerHTML=dateBtns.map(([k,v])=>`<button class="filter-btn ${aptDateFilter===k?'active':''}" onclick="aptDateFilter='${k}';aptPage=0;renderAppointments()">${v} (${dateCounts[k]})</button>`).join('');
+    dc.innerHTML=dateBtns.map(([k,v])=>`<button class="filter-btn ${aptDateFilter===k?'active':''}" onclick="aptDateFilter='${k}';renderAppointments()">${v} (${dateCounts[k]})</button>`).join('');
     // Result info
     document.getElementById('aptResultInfo').textContent=f.length+' randevu bulundu';
 
-    // Pagination
-    const totalPages=Math.ceil(f.length/APT_PER_PAGE);
-    const paged=f.slice(aptPage*APT_PER_PAGE,(aptPage+1)*APT_PER_PAGE);
-
-    // Group by date
+    // Group by date - no pagination, all days as accordion
     const groups={};
-    paged.forEach(a=>{if(!groups[a.date])groups[a.date]=[];groups[a.date].push(a)});
+    f.forEach(a=>{if(!groups[a.date])groups[a.date]=[];groups[a.date].push(a)});
 
     const el=document.getElementById('aptGroupedList');
     if(!f.length){el.innerHTML='<div class="empty-state"><p>Randevu bulunamadi</p></div>';document.getElementById('aptPagination').innerHTML='';return}
+    document.getElementById('aptPagination').innerHTML='';
 
     let html='';let firstGroup=true;let lastMonth='';
     Object.entries(groups).forEach(([date,apts])=>{
@@ -720,11 +717,6 @@ function renderAppointments(){
         firstGroup=false;
     });
     el.innerHTML=html;
-
-    // Pagination buttons
-    const pg=document.getElementById('aptPagination');
-    if(totalPages<=1){pg.innerHTML='';return}
-    pg.innerHTML=`<button class="apt-page-btn ${aptPage===0?'disabled':''}" onclick="aptPage--;renderAppointments()">&#9664; Onceki</button><span style="color:var(--text-muted);font-size:13px;display:flex;align-items:center">${aptPage+1} / ${totalPages}</span><button class="apt-page-btn ${aptPage>=totalPages-1?'disabled':''}" onclick="aptPage++;renderAppointments()">Sonraki &#9654;</button>`;
 }
 
 function addAppointmentForPatient(patientId){
