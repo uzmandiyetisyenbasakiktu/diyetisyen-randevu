@@ -1509,12 +1509,12 @@ function getReminders(){
     activePatients.forEach(p=>{
         const patApts=appointments.filter(a=>a.patientId===p.id).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
         if(!patApts.length)return; // Hic randevusu yoksa (yeni hasta, henuz randevulanmamis)
-        // Son tamamlanan veya gecmis randevuyu bul (geldi veya gelmedi veya gecmis tarihli bekliyor)
-        const pastOrDone=patApts.filter(a=>a.date<today||(a.date===today&&(a.status==='geldi'||a.status==='gelmedi')));
-        if(!pastOrDone.length)return;
-        const lastApt=pastOrDone[pastOrDone.length-1];
+        // Son randevuyu bul (bugun veya gecmis tarihli - durumu fark etmez)
+        const pastApts=patApts.filter(a=>a.date<=today);
+        if(!pastApts.length)return;
+        const lastApt=pastApts[pastApts.length-1];
         // Gelecekte randevusu var mi?
-        const futureApt=patApts.find(a=>a.date>today||(a.date===today&&a.status==='bekliyor'));
+        const futureApt=patApts.find(a=>a.date>today);
         if(futureApt)return; // Sonraki randevusu var, uyari yok
         // Kac gun gecmis?
         const lastDate=new Date(lastApt.date+'T12:00:00');
