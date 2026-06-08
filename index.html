@@ -758,7 +758,7 @@ function renderAppointments(){
     if(!f.length){el.innerHTML='<div class="empty-state"><p>Randevu bulunamadi</p></div>';document.getElementById('aptPagination').innerHTML='';return}
     document.getElementById('aptPagination').innerHTML='';
 
-    let html='';let firstGroup=true;let lastMonth='';
+    let html='';let lastMonth='';
     Object.entries(groups).forEach(([date,apts])=>{
         const monthKey=date.slice(0,7);
         if(monthKey!==lastMonth){
@@ -767,9 +767,9 @@ function renderAppointments(){
             html+=`<div style="display:flex;align-items:center;gap:12px;margin:${lastMonth?'24px':'0'} 0 12px"><div style="font-size:14px;font-weight:700;color:var(--primary);text-transform:capitalize;white-space:nowrap">${monthName}</div><div style="flex:1;height:1px;background:var(--border)"></div></div>`;
             lastMonth=monthKey;
         }
-        const isOpen=firstGroup;
+        const isToday=date===today;
         const gid='adg_'+date.replace(/-/g,'');
-        html+=`<div class="apt-day-group"><div class="apt-day-header" onclick="toggleDayGroup('${gid}')"><span class="adh-arrow ${isOpen?'open':''}">&#9654;</span><div style="flex:1"><div class="adh-date">${formatDate(date)}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div><div class="apt-day-body ${isOpen?'open':''}" id="${gid}">`;
+        html+=`<div class="apt-day-group"><div class="apt-day-header" onclick="toggleDayGroup('${gid}')"><span class="adh-arrow">&#9654;</span><div style="flex:1"><div class="adh-date">${formatDate(date)}${isToday?' <span style="font-size:11px;background:var(--primary);color:white;padding:2px 8px;border-radius:6px;margin-left:6px;vertical-align:middle">Bugun</span>':''}</div><div class="adh-day">${getDayName(date)}</div></div><span class="adh-count">${apts.length} randevu</span></div><div class="apt-day-body" id="${gid}">`;
         apts.forEach(a=>{
             const p=patients.find(p=>p.id===a.patientId);
             const w=getLatestWeight(a.patientId);const anum=getAptNum(a);
@@ -780,7 +780,6 @@ function renderAppointments(){
             </div>`;
         });
         html+=`</div></div>`;
-        firstGroup=false;
     });
     el.innerHTML=html;
 }
