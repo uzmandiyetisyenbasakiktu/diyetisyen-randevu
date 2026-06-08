@@ -498,7 +498,7 @@
         <div class="form-group"><label>Dogum Tarihi</label><input type="date" id="patientBirthdate"></div>
         <div class="form-group"><label>Boy (cm)</label><input type="number" id="patientHeight" placeholder="167" min="50" max="250"></div>
     </div>
-    <div class="form-group"><label>Tedavi Durumu</label><select id="patientStatus"><option value="aktif">Aktif (Devam Ediyor)</option><option value="tamamlandi">Tedavi Tamamlandi</option><option value="beklemede">Beklemede</option></select></div>
+    <div class="form-group"><label>Tedavi Durumu</label><select id="patientStatus"><option value="aktif">Aktif (Devam Ediyor)</option><option value="tamamlandi">Tedavi Tamamlandi</option><option value="beklemede">Dondurdu</option></select></div>
     <div class="form-group"><label>Saglik Problemleri</label><input type="text" id="patientHealthIssues" placeholder="Tiroid, Gastrit, Diyabet..."></div>
     <div class="form-group"><label>Alerjiler</label><input type="text" id="patientAllergies" placeholder="Gluten, laktoz, fistik..."></div>
     <div class="form-group"><label>Kullanilan Ilaclar</label><input type="text" id="patientMedications" placeholder="Euthyrox 25, Metformin..."></div>
@@ -828,7 +828,7 @@ function renderPatientFilters(){
     const cBugun=appointments.filter(a=>a.date===today).length;
     const fb=document.getElementById('patientFilterBar');
     const f=patientFilter;
-    fb.innerHTML=`<button class="filter-btn ${f==='all'?'active':''}" onclick="filterPatient('all',this)">Tumu (${cAll})</button><button class="filter-btn ${f==='aktif'?'active':''}" onclick="filterPatient('aktif',this)">Aktif (${cAktif})</button><button class="filter-btn ${f==='tamamlandi'?'active':''}" onclick="filterPatient('tamamlandi',this)">Tamamlandi (${cTam})</button><button class="filter-btn ${f==='beklemede'?'active':''}" onclick="filterPatient('beklemede',this)">Beklemede (${cBek})</button><button class="filter-btn ${f==='bugun'?'active':''}" onclick="filterPatient('bugun',this)" style="border-color:${f==='bugun'?'':'var(--primary)'}">Bugunun Hastalari (${cBugun})</button>`;
+    fb.innerHTML=`<button class="filter-btn ${f==='all'?'active':''}" onclick="filterPatient('all',this)">Tumu (${cAll})</button><button class="filter-btn ${f==='aktif'?'active':''}" onclick="filterPatient('aktif',this)">Aktif (${cAktif})</button><button class="filter-btn ${f==='tamamlandi'?'active':''}" onclick="filterPatient('tamamlandi',this)">Tamamlandi (${cTam})</button><button class="filter-btn ${f==='beklemede'?'active':''}" onclick="filterPatient('beklemede',this)">Donduranlar (${cBek})</button><button class="filter-btn ${f==='bugun'?'active':''}" onclick="filterPatient('bugun',this)" style="border-color:${f==='bugun'?'':'var(--primary)'}">Bugunun Hastalari (${cBugun})</button>`;
 }
 function renderPatients(){
     renderPatientFilters();
@@ -865,7 +865,7 @@ function renderPatients(){
         const ac=appointments.filter(a=>a.patientId===p.id).length;
         const av=p.photo?`<img src="${p.photo}" alt="${p.name}">`:(p.name.charAt(0).toUpperCase());
         const st=p.status||'aktif';
-        const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;
+        const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Dondurdu'}[st]||st;
         return`<div class="patient-card" onclick="showPatientDetail('${p.id}')"><div class="patient-header"><div class="patient-avatar">${av}</div><div><div class="patient-name">${p.name}</div><div class="patient-phone">${p.phone||'Telefon yok'}</div></div><span class="patient-status-badge pstatus-${st}">${stName}</span></div><div class="patient-stats"><div class="patient-stat">Randevu: <strong>${ac}</strong></div>${p.email?`<div class="patient-stat">${p.email}</div>`:''}</div></div>`
     }).join('');
 }
@@ -971,7 +971,7 @@ function showPatientDetail(id){
 }
 function renderProfilePage(id){
     const p=patients.find(x=>x.id===id);if(!p)return;
-    const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Beklemede'}[st]||st;
+    const st=p.status||'aktif';const stName={aktif:'Aktif',tamamlandi:'Tamamlandi',beklemede:'Dondurdu'}[st]||st;
     const lw=getLatestWeight(id);
     const pa=appointments.filter(a=>a.patientId===id);
     const age=p.birthdate?Math.floor((new Date()-new Date(p.birthdate))/(365.25*24*60*60*1000)):'';
