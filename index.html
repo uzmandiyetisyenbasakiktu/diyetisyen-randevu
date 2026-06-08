@@ -432,7 +432,7 @@
                 <div class="stat-card" onclick="goToPage('patients','bugun')"><div class="stat-icon">&#128197;</div><div class="stat-label">Bugunun Danisanlari</div><div class="stat-value" id="statToday">0</div></div>
                 <div class="stat-card" onclick="goToPage('calendar')"><div class="stat-icon">&#128198;</div><div class="stat-label">Bu Haftaki Randevular</div><div class="stat-value" id="statWeek">0</div></div>
                 <div class="stat-card" onclick="goToPage('patients')"><div class="stat-icon">&#128101;</div><div class="stat-label">Aktif Hasta</div><div class="stat-value" id="statPatients">0</div></div>
-                <div class="stat-card" onclick="showNoShowList()"><div class="stat-icon">&#10060;</div><div class="stat-label">Gelmeyen (Bu Ay)</div><div class="stat-value" id="statNoShow">0</div></div>
+                <div class="stat-card" onclick="goToPage('patients','beklemede')"><div class="stat-icon">&#10052;</div><div class="stat-label">Donduranlar</div><div class="stat-value" id="statFrozen">0</div></div>
             </div>
             <div id="reminderContainer"></div>
             <div class="card"><div class="card-title">Bugunun Randevulari</div><div id="todayAppointments"></div></div>
@@ -651,7 +651,7 @@ function updateStats(){
     const mon=getMonday(new Date()),sun=new Date(mon);sun.setDate(sun.getDate()+6);
     document.getElementById('statWeek').textContent=appointments.filter(a=>a.date>=mon.toISOString().split('T')[0]&&a.date<=sun.toISOString().split('T')[0]).length;
     document.getElementById('statPatients').textContent=patients.filter(p=>(p.status||'aktif')==='aktif').length;
-    document.getElementById('statNoShow').textContent=appointments.filter(a=>a.date.startsWith(new Date().toISOString().slice(0,7))&&a.status==='gelmedi').length;
+    document.getElementById('statFrozen').textContent=patients.filter(p=>p.status==='beklemede').length;
 }
 
 let aptDateFilter='thisWeek';
