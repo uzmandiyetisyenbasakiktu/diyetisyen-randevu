@@ -367,6 +367,35 @@
         .type-item .type-default{font-size:10px;color:var(--text-muted);background:rgba(108,99,255,0.1);padding:3px 10px;border-radius:10px;white-space:nowrap}
         .type-item button{background:none;border:none;color:var(--danger);cursor:pointer;font-size:20px;padding:4px;transition:transform 0.2s}
         .type-item button:hover{transform:scale(1.2)}
+        /* REMINDER ALERT BOX */
+        .reminder-box{border-radius:18px;padding:20px;margin-bottom:20px;border:1px solid;animation:fadeInReminder 0.5s var(--ease)}
+        .reminder-box.reminder-yellow{background:rgba(255,184,77,0.08);border-color:rgba(255,184,77,0.3)}
+        .reminder-box.reminder-red{background:rgba(255,107,107,0.08);border-color:rgba(255,107,107,0.3)}
+        .reminder-box .rb-title{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+        .reminder-box.reminder-yellow .rb-title{color:var(--warning)}
+        .reminder-box.reminder-red .rb-title{color:var(--danger)}
+        .reminder-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;margin-bottom:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);transition:all 0.25s var(--ease);cursor:pointer}
+        .reminder-item:hover{transform:translateX(4px);border-color:rgba(108,99,255,0.2);background:rgba(108,99,255,0.04)}
+        .reminder-item .ri-avatar{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--primary),#a78bfa);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:white;overflow:hidden;flex-shrink:0}
+        .reminder-item .ri-avatar img{width:100%;height:100%;object-fit:cover}
+        .reminder-item .ri-info{flex:1;min-width:0}
+        .reminder-item .ri-name{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .reminder-item .ri-meta{font-size:12px;color:var(--text-muted)}
+        .reminder-item .ri-days{font-size:12px;font-weight:700;padding:4px 10px;border-radius:8px;white-space:nowrap}
+        .ri-days.ri-yellow{background:rgba(255,184,77,0.15);color:var(--warning)}
+        .ri-days.ri-red{background:rgba(255,107,107,0.15);color:var(--danger)}
+        .reminder-add-btn{padding:6px 14px;border-radius:10px;border:1px solid var(--primary);background:rgba(108,99,255,0.1);color:var(--primary-light);cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;transition:all 0.2s;white-space:nowrap}
+        .reminder-add-btn:hover{background:rgba(108,99,255,0.2);border-color:var(--primary-light)}
+        /* Reminder popup */
+        .reminder-popup-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(6px);z-index:9100;justify-content:center;align-items:center;padding:20px}
+        .reminder-popup-overlay.active{display:flex}
+        .reminder-popup{background:rgba(20,20,40,0.97);backdrop-filter:blur(30px);border-radius:24px;padding:32px;width:100%;max-width:440px;box-shadow:var(--el-3),0 0 80px rgba(255,107,107,0.1);border:2px solid rgba(255,107,107,0.3);animation:popupBounce 0.4s var(--ease)}
+        .reminder-popup.popup-yellow{border-color:rgba(255,184,77,0.4);box-shadow:var(--el-3),0 0 80px rgba(255,184,77,0.1)}
+        [data-theme="light"] .reminder-popup{background:rgba(255,255,255,0.97)}
+        [data-theme="light"] .reminder-box.reminder-yellow{background:rgba(255,184,77,0.06)}
+        [data-theme="light"] .reminder-box.reminder-red{background:rgba(255,107,107,0.06)}
+        @keyframes fadeInReminder{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes popupBounce{0%{opacity:0;transform:scale(0.85)}60%{transform:scale(1.02)}100%{opacity:1;transform:scale(1)}}
     </style>
 </head>
 <body>
@@ -405,6 +434,7 @@
                 <div class="stat-card" onclick="goToPage('patients')"><div class="stat-icon">&#128101;</div><div class="stat-label">Aktif Hasta</div><div class="stat-value" id="statPatients">0</div></div>
                 <div class="stat-card" onclick="showNoShowList()"><div class="stat-icon">&#10060;</div><div class="stat-label">Gelmeyen (Bu Ay)</div><div class="stat-value" id="statNoShow">0</div></div>
             </div>
+            <div id="reminderContainer"></div>
             <div class="card"><div class="card-title">Bugunun Randevulari</div><div id="todayAppointments"></div></div>
             <div class="card"><div class="card-title">Yaklasan Randevular (7 Gun)</div><div id="upcomingAppointments"></div></div>
         </div>
@@ -525,6 +555,19 @@
     </div>
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('cropModal')">Iptal</button><button class="btn btn-primary" onclick="applyCrop()">Uygula</button></div>
 </div></div>
+<div class="reminder-popup-overlay" id="reminderPopup">
+    <div class="reminder-popup" id="reminderPopupBox">
+        <div style="text-align:center;margin-bottom:20px">
+            <div id="reminderPopupIcon" style="font-size:48px;margin-bottom:8px">&#128276;</div>
+            <h3 id="reminderPopupTitle" style="font-size:18px;font-weight:700;margin-bottom:6px">Randevu Hatirlatma</h3>
+            <p id="reminderPopupDesc" style="font-size:13px;color:var(--text-muted)"></p>
+        </div>
+        <div id="reminderPopupList"></div>
+        <div style="display:flex;gap:8px;margin-top:20px;justify-content:center">
+            <button class="btn btn-outline btn-sm" onclick="closeReminderPopup()">Tamam, Anladim</button>
+        </div>
+    </div>
+</div>
 <div class="toast-container" id="toastContainer"></div>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
@@ -559,6 +602,8 @@ async function loadData(){
     db.collection('patients').where('userId','==',currentUser.uid).orderBy('name').onSnapshot(s=>{patients=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
     db.collection('appointments').where('userId','==',currentUser.uid).orderBy('date').onSnapshot(s=>{appointments=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()});
     db.collection('weights').where('userId','==',currentUser.uid).onSnapshot(s=>{allWeights=s.docs.map(d=>({id:d.id,...d.data()}));renderAll()},()=>{});
+    // Ilk yuklemeden 2 sn sonra popup kontrol et (veriler yuklensin)
+    setTimeout(checkReminderPopup,2000);
     restorePage();renderTypes();
     const savedPage=localStorage.getItem('currentPage')||'dashboard';
     if(savedPage==='profile'){const pid=localStorage.getItem('currentProfileId');navHistory.push({page:'profile',patientId:pid})}
@@ -581,7 +626,7 @@ function showNoShowList(){
     openModal('noShowModal');
 }
 function renderAll(){
-    renderDashboard();renderAppointments();renderCalendar();renderPatients();updateStats();
+    renderDashboard();renderAppointments();renderCalendar();renderPatients();updateStats();renderReminders();
     // Update profile page if open
     if(currentDetailPatientId&&document.getElementById('page-profile').classList.contains('active')){
         renderProfilePage(currentDetailPatientId);
@@ -1394,6 +1439,165 @@ function initTheme(){
     updateThemeLabel();
 }
 initTheme();
+
+// REMINDER SYSTEM - Sonraki randevusu olmayan hastalar
+let reminderPopupShownToday=JSON.parse(sessionStorage.getItem('reminderShown')||'{}');
+
+function getReminders(){
+    const today=localDateStr(new Date());
+    const reminders=[];
+    // Sadece aktif hastalar
+    const activePatients=patients.filter(p=>(p.status||'aktif')==='aktif');
+    activePatients.forEach(p=>{
+        const patApts=appointments.filter(a=>a.patientId===p.id).sort((a,b)=>a.date.localeCompare(b.date)||a.time.localeCompare(b.time));
+        if(!patApts.length)return; // Hic randevusu yoksa (yeni hasta, henuz randevulanmamis)
+        // Son tamamlanan veya gecmis randevuyu bul (geldi veya gelmedi veya gecmis tarihli bekliyor)
+        const pastOrDone=patApts.filter(a=>a.date<today||(a.date===today&&(a.status==='geldi'||a.status==='gelmedi')));
+        if(!pastOrDone.length)return;
+        const lastApt=pastOrDone[pastOrDone.length-1];
+        // Gelecekte randevusu var mi?
+        const futureApt=patApts.find(a=>a.date>today||(a.date===today&&a.status==='bekliyor'));
+        if(futureApt)return; // Sonraki randevusu var, uyari yok
+        // Kac gun gecmis?
+        const lastDate=new Date(lastApt.date+'T12:00:00');
+        const todayDate=new Date(today+'T12:00:00');
+        const diffDays=Math.floor((todayDate-lastDate)/(1000*60*60*24));
+        if(diffDays>=4){
+            reminders.push({
+                patient:p,
+                lastApt:lastApt,
+                days:diffDays,
+                level:diffDays>=6?'red':'yellow',
+                aptNum:patApts.indexOf(lastApt)+1
+            });
+        }
+    });
+    // En acil olanlar uste
+    reminders.sort((a,b)=>b.days-a.days);
+    return reminders;
+}
+
+function renderReminders(){
+    const container=document.getElementById('reminderContainer');
+    if(!container)return;
+    const reminders=getReminders();
+    if(!reminders.length){container.innerHTML='';return}
+    const reds=reminders.filter(r=>r.level==='red');
+    const yellows=reminders.filter(r=>r.level==='yellow');
+    let html='';
+    if(reds.length){
+        html+=`<div class="reminder-box reminder-red"><div class="rb-title">&#128680; Acil - Randevu Olusturulmadi!</div>${reds.map(r=>buildReminderItem(r)).join('')}</div>`;
+    }
+    if(yellows.length){
+        html+=`<div class="reminder-box reminder-yellow"><div class="rb-title">&#9888;&#65039; Hatirlatma - Sonraki Randevu Yok</div>${yellows.map(r=>buildReminderItem(r)).join('')}</div>`;
+    }
+    container.innerHTML=html;
+}
+
+function buildReminderItem(r){
+    const av=r.patient.photo?`<img src="${r.patient.photo}" alt="${r.patient.name}">`:(r.patient.name.charAt(0).toUpperCase());
+    const lastDateStr=formatDate(r.lastApt.date);
+    const dayClass=r.level==='red'?'ri-red':'ri-yellow';
+    return`<div class="reminder-item" onclick="showPatientDetail('${r.patient.id}')">
+        <div class="ri-avatar">${av}</div>
+        <div class="ri-info">
+            <div class="ri-name">${r.patient.name}</div>
+            <div class="ri-meta">Son: ${r.aptNum}. gorusme - ${lastDateStr}</div>
+        </div>
+        <span class="ri-days ${dayClass}">${r.days} gun</span>
+        <button class="reminder-add-btn" onclick="event.stopPropagation();addAppointmentForPatient('${r.patient.id}')">+ Randevu</button>
+    </div>`;
+}
+
+function checkReminderPopup(){
+    const reminders=getReminders();
+    if(!reminders.length)return;
+    const today=localDateStr(new Date());
+    // 4. gun uyarisi (sari) - sadece 4-5 gun arasindakiler
+    const yellowAlerts=reminders.filter(r=>r.days>=4&&r.days<6);
+    // 6+ gun uyarisi (kirmizi)
+    const redAlerts=reminders.filter(r=>r.days>=6);
+    // Session icinde gosterildi mi kontrol et
+    const shownKey4=today+'_yellow';
+    const shownKey6=today+'_red';
+    if(redAlerts.length&&!reminderPopupShownToday[shownKey6]){
+        showReminderPopup(redAlerts,'red');
+        reminderPopupShownToday[shownKey6]=true;
+        sessionStorage.setItem('reminderShown',JSON.stringify(reminderPopupShownToday));
+    }else if(yellowAlerts.length&&!reminderPopupShownToday[shownKey4]){
+        showReminderPopup(yellowAlerts,'yellow');
+        reminderPopupShownToday[shownKey4]=true;
+        sessionStorage.setItem('reminderShown',JSON.stringify(reminderPopupShownToday));
+    }
+}
+
+function showReminderPopup(alerts,level){
+    const popup=document.getElementById('reminderPopup');
+    const box=document.getElementById('reminderPopupBox');
+    const icon=document.getElementById('reminderPopupIcon');
+    const title=document.getElementById('reminderPopupTitle');
+    const desc=document.getElementById('reminderPopupDesc');
+    const list=document.getElementById('reminderPopupList');
+    if(level==='red'){
+        box.className='reminder-popup';
+        icon.textContent='🚨';
+        title.style.color='var(--danger)';
+        title.textContent='Acil Hatirlatma!';
+        desc.textContent=alerts.length+' hastanin sonraki randevusu 6+ gundur olusturulmadi!';
+    }else{
+        box.className='reminder-popup popup-yellow';
+        icon.textContent='⚠️';
+        title.style.color='var(--warning)';
+        title.textContent='Randevu Hatirlatma';
+        desc.textContent=alerts.length+' hastanin sonraki randevusu henuz olusturulmadi.';
+    }
+    list.innerHTML=alerts.map(r=>{
+        const av=r.patient.photo?`<img src="${r.patient.photo}" alt="${r.patient.name}">`:(r.patient.name.charAt(0).toUpperCase());
+        return`<div class="reminder-item" onclick="closeReminderPopup();showPatientDetail('${r.patient.id}')">
+            <div class="ri-avatar">${av}</div>
+            <div class="ri-info">
+                <div class="ri-name">${r.patient.name}</div>
+                <div class="ri-meta">Son: ${r.aptNum}. gorusme - ${formatDate(r.lastApt.date)}</div>
+            </div>
+            <span class="ri-days ${level==='red'?'ri-red':'ri-yellow'}">${r.days} gun</span>
+            <button class="reminder-add-btn" onclick="event.stopPropagation();closeReminderPopup();addAppointmentForPatient('${r.patient.id}')">+ Randevu</button>
+        </div>`;
+    }).join('');
+    popup.classList.add('active');
+    // Ses cal
+    playReminderSound();
+}
+
+function closeReminderPopup(){
+    document.getElementById('reminderPopup').classList.remove('active');
+}
+
+function playReminderSound(){
+    try{
+        const ctx=new(window.AudioContext||window.webkitAudioContext)();
+        // Ilk nota
+        const o1=ctx.createOscillator();const g1=ctx.createGain();
+        o1.connect(g1);g1.connect(ctx.destination);
+        o1.type='sine';o1.frequency.value=587.33; // D5
+        g1.gain.setValueAtTime(0.3,ctx.currentTime);
+        g1.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.3);
+        o1.start(ctx.currentTime);o1.stop(ctx.currentTime+0.3);
+        // Ikinci nota
+        const o2=ctx.createOscillator();const g2=ctx.createGain();
+        o2.connect(g2);g2.connect(ctx.destination);
+        o2.type='sine';o2.frequency.value=880; // A5
+        g2.gain.setValueAtTime(0.3,ctx.currentTime+0.15);
+        g2.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);
+        o2.start(ctx.currentTime+0.15);o2.stop(ctx.currentTime+0.5);
+        // Ucuncu nota
+        const o3=ctx.createOscillator();const g3=ctx.createGain();
+        o3.connect(g3);g3.connect(ctx.destination);
+        o3.type='sine';o3.frequency.value=1174.66; // D6
+        g3.gain.setValueAtTime(0.25,ctx.currentTime+0.3);
+        g3.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.7);
+        o3.start(ctx.currentTime+0.3);o3.stop(ctx.currentTime+0.7);
+    }catch(e){console.log('Ses calinamadi:',e)}
+}
 
 function toggleDayGroup(id){
     const body=document.getElementById(id);
