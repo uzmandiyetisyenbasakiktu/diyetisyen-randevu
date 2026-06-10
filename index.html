@@ -507,7 +507,6 @@
     <div class="form-group"><label>Sure (dk)</label><select id="aptDuration"><option value="30" selected>30 dk</option><option value="45">45 dk</option><option value="60">60 dk</option><option value="90">90 dk</option></select></div>
     <div class="form-group"><label>Randevu Turu</label><select id="aptType"><option value="gorusme">Gorusme</option><option value="kontrol">Kontrol</option><option value="olcum">Olcum</option><option value="online">Online</option></select></div>
     <div class="form-group"><label>Durum</label><select id="aptStatus"><option value="bekliyor">Bekliyor</option><option value="geldi">Geldi</option><option value="gelmedi">Gelmedi</option><option value="iptal">Iptal</option></select></div>
-    <div class="form-group" style="display:flex;align-items:center;gap:12px;padding:8px 0"><label style="margin:0;flex:1">&#128260; Yenileme Randevusu</label><div class="type-toggle" id="aptRenewalToggle" onclick="this.classList.toggle('active')"><div class="type-toggle-dot"></div></div></div>
     <div class="form-group"><label>Notlar</label><textarea id="aptNotes" placeholder="Randevu notlari..."></textarea></div>
     <input type="hidden" id="aptEditId">
     <div class="modal-actions"><button class="btn btn-outline" onclick="closeModal('appointmentModal')">Iptal</button><button class="btn btn-primary" onclick="saveAppointment()">Kaydet</button></div>
@@ -870,7 +869,7 @@ function showDaySchedule(){
 function openNewAppointmentModal(){
     document.getElementById('aptModalTitle').textContent='Yeni Randevu';document.getElementById('aptEditId').value='';document.getElementById('aptPatient').value='';document.getElementById('aptPatientSearch').value='';
     document.getElementById('aptDate').value=new Date().toISOString().split('T')[0];document.getElementById('aptTime').value='09:00';document.getElementById('aptDuration').value='30';
-    document.getElementById('aptType').value='gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptRenewalToggle').classList.remove('active');document.getElementById('aptNotes').value='';populateTimeSlots();document.getElementById('aptTime').value='09:00';showDaySchedule();openModal('appointmentModal');
+    document.getElementById('aptType').value='gorusme';document.getElementById('aptStatus').value='bekliyor';document.getElementById('aptNotes').value='';populateTimeSlots();document.getElementById('aptTime').value='09:00';showDaySchedule();openModal('appointmentModal');
 }
 function editAppointment(id){
     const apt=appointments.find(a=>a.id===id);if(!apt)return;
@@ -878,14 +877,14 @@ function editAppointment(id){
     document.getElementById('aptPatient').value=apt.patientId;
     const ap=patients.find(p=>p.id===apt.patientId);document.getElementById('aptPatientSearch').value=ap?ap.name:'';
     document.getElementById('aptDate').value=apt.date;populateTimeSlots();document.getElementById('aptTime').value=apt.time;document.getElementById('aptDuration').value=apt.duration;
-    document.getElementById('aptType').value=apt.type;document.getElementById('aptStatus').value=apt.status;if(apt.renewal)document.getElementById('aptRenewalToggle').classList.add('active');else document.getElementById('aptRenewalToggle').classList.remove('active');document.getElementById('aptNotes').value=apt.notes||'';showDaySchedule();openModal('appointmentModal');
+    document.getElementById('aptType').value=apt.type;document.getElementById('aptStatus').value=apt.status;document.getElementById('aptNotes').value=apt.notes||'';showDaySchedule();openModal('appointmentModal');
 }
 async function saveAppointment(){
     const pid=document.getElementById('aptPatient').value,date=document.getElementById('aptDate').value,time=document.getElementById('aptTime').value;
     if(!pid||!date||!time){showToast('Hasta, tarih ve saat zorunlu!','error');return}
     const conflict=checkTimeConflict();
     if(conflict){const cp=patients.find(x=>x.id===conflict.patientId);showToast(`Cakisma! ${conflict.time} - ${cp?cp.name:'?'} randevusu var`,'error');return}
-    const data={userId:currentUser.uid,patientId:pid,date,time,duration:document.getElementById('aptDuration').value,type:document.getElementById('aptType').value,status:document.getElementById('aptStatus').value,renewal:document.getElementById('aptRenewalToggle').classList.contains('active'),notes:document.getElementById('aptNotes').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
+    const data={userId:currentUser.uid,patientId:pid,date,time,duration:document.getElementById('aptDuration').value,type:document.getElementById('aptType').value,status:document.getElementById('aptStatus').value,notes:document.getElementById('aptNotes').value,updatedAt:firebase.firestore.FieldValue.serverTimestamp()};
     const eid=document.getElementById('aptEditId').value;
     try{if(eid){await db.collection('appointments').doc(eid).update(data);showToast('Randevu guncellendi!','success')}else{data.createdAt=firebase.firestore.FieldValue.serverTimestamp();await db.collection('appointments').add(data);showToast('Randevu eklendi!','success')}closeModal('appointmentModal');setTimeout(renderAll,300)}catch(e){showToast('Hata: '+e.message,'error')}
 }
@@ -1213,7 +1212,8 @@ function quickStatusSelect(status){
 
 async function saveQuickStatus(){
     if(!quickModalAptId||!quickModalSelectedStatus)return;
-    try{await db.collection('appointments').doc(quickModalAptId).update({status:quickModalSelectedStatus,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});showToast(getStatusName(quickModalSelectedStatus)+' olarak kaydedildi!','success');closeModal('aptQuickModal');setTimeout(renderAll,300)}
+    const renewal=document.getElementById('quickRenewalToggle').classList.contains('active');
+    try{await db.collection('appointments').doc(quickModalAptId).update({status:quickModalSelectedStatus,renewal:renewal,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});showToast(getStatusName(quickModalSelectedStatus)+' olarak kaydedildi!','success');closeModal('aptQuickModal');setTimeout(renderAll,300)}
     catch(e){showToast('Hata: '+e.message,'error')}
 }
 
@@ -1270,6 +1270,10 @@ function showAptQuickModal(id){
             <div style="display:flex;justify-content:space-between"><span style="color:var(--text-muted);font-size:13px">Tur</span><span style="font-size:13px;font-weight:600">${getTypeName(a.type)}</span></div>
         </div>
         ${a.notes?`<div style="background:var(--bg-input);border-radius:12px;padding:14px;margin-bottom:16px;font-size:13px;color:var(--text-muted)">${a.notes}</div>`:''}
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg-input);border-radius:12px;padding:12px 14px;margin-bottom:16px">
+            <span style="font-size:13px;color:var(--text-muted);display:flex;align-items:center;gap:6px">&#128260; Yenileme</span>
+            <div class="type-toggle ${a.renewal?'active':''}" id="quickRenewalToggle" onclick="this.classList.toggle('active')"><div class="type-toggle-dot"></div></div>
+        </div>
         <div style="display:flex;gap:8px">
             <button class="btn btn-danger btn-sm" style="flex:1" onclick="closeModal('aptQuickModal');deleteAppointment('${a.id}')">Sil</button>
             <button class="btn btn-sm" style="flex:1;background:linear-gradient(135deg,var(--primary),#a78bfa);color:white" onclick="closeModal('aptQuickModal');editAppointment('${a.id}')">Duzenle</button>
